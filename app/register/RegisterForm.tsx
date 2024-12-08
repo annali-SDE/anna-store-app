@@ -24,7 +24,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ currentUser }) => {
 		handleSubmit,
 		formState: { errors }
 	} = useForm<FieldValues>({
-		defaultValues: { name: '', email: '', password: '' }
+		defaultValues: { first_name: '', last_name: '', email: '', password: '' }
 	});
 
 	const router = useRouter();
@@ -86,8 +86,16 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ currentUser }) => {
 				<div className='flex-grow border-t border-slate-300'></div>
 			</div>
 			<Input
-				id='name'
-				label='Name'
+				id='first_name'
+				label='First Name'
+				disabled={isLoading}
+				register={register}
+				errors={errors}
+				required
+			/>
+			<Input
+				id='last_name'
+				label='Last Name'
 				disabled={isLoading}
 				register={register}
 				errors={errors}

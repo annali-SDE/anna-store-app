@@ -2,7 +2,6 @@
 
 import { Order, Product, User } from '@prisma/client';
 import { useEffect, useState } from 'react';
-
 import Heading from '@/app/components/Heading';
 import { formatPrice } from '../utils/formatPrice';
 import { formatNumber } from '../utils/formatNumber';
@@ -76,32 +75,30 @@ const Overview: React.FC<OverviewProps> = ({ products, orders, users }) => {
 
 	const overviewKeys = Object.keys(overviewData);
 	return (
-		<>
-			<div className='max-w-[1150px] m-auto'>
-				<div className='mb-4 mt-8'>
-					<Heading title='Status' center />
-				</div>
-				<div className='grid grid-cols-2 gap-3 max-h-50vh overflow-y-auto'>
-					{overviewKeys &&
-						overviewKeys.map((key) => {
-							return (
-								<div
-									key={key}
-									className='border-2 p-4 flex flex-col items-center gap-2 transition rounded-xl'>
-									<div className='text-xl md:text-4xl font-bold'>
-										{overviewData[key].label === 'Total Sale' ? (
-											<>{formatPrice(overviewData[key].digit)}</>
-										) : (
-											<>{formatNumber(overviewData[key].digit)}</>
-										)}
-									</div>
-									<div>{overviewData[key].label}</div>
-								</div>
-							);
-						})}
-				</div>
+		<div className='max-w-[1150px] m-auto'>
+			<div className='mb-4 mt-8'>
+				<Heading title='Status' center />
 			</div>
-		</>
+			<div className='grid grid-cols-2 gap-3 max-h-50vh overflow-y-auto'>
+				{overviewKeys &&
+					overviewKeys.map((key) => {
+						return (
+							<div
+								key={key}
+								className='border-2 p-4 flex flex-col items-center gap-2 transition rounded-xl'>
+								<div className='text-xl md:text-4xl font-bold'>
+									{overviewData[key].label === 'Total Sale' ? (
+										<>{formatPrice(overviewData[key].digit)}</>
+									) : (
+										<>{formatNumber(overviewData[key].digit)}</>
+									)}
+								</div>
+								<div>{overviewData[key].label}</div>
+							</div>
+						);
+					})}
+			</div>
+		</div>
 	);
 };
 export default Overview;

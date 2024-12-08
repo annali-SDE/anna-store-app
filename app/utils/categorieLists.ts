@@ -1,5 +1,15 @@
 import { AiFillPhone, AiOutlineDesktop, AiOutlineLaptop } from 'react-icons/ai';
 import { MdOutlineKeyboard, MdStorefront, MdTv, MdWatch } from 'react-icons/md';
+import {
+	GiFingernail,
+	GiHeartNecklace,
+	GiGemChain,
+	GiPowerRing,
+	GiMineralPearls,
+	GiChipsBag,
+	GiSewingNeedle,
+	GiStickGrenade
+} from 'react-icons/gi';
 
 export const categories = [
 	{
@@ -7,27 +17,35 @@ export const categories = [
 		icon: MdStorefront
 	},
 	{
-		label: 'Phone',
-		icon: AiFillPhone
+		label: 'Press on Nails',
+		icon: GiFingernail
 	},
 	{
-		label: 'Laptop',
-		icon: AiOutlineLaptop
+		label: 'Bracelets',
+		icon: GiGemChain
 	},
 	{
-		label: 'Desktop',
-		icon: AiOutlineDesktop
+		label: 'Rings',
+		icon: GiPowerRing
 	},
 	{
-		label: 'Watch',
-		icon: MdWatch
+		label: 'Necklaces',
+		icon: GiHeartNecklace
 	},
 	{
-		label: 'Tv',
-		icon: MdTv
+		label: 'DIY',
+		icon: GiMineralPearls
 	},
 	{
-		label: 'Accesories',
-		icon: MdOutlineKeyboard
+		label: 'Mystery Bag',
+		icon: GiChipsBag
+	},
+	{
+		label: 'Nail Accesories',
+		icon: GiStickGrenade
+	},
+	{
+		label: 'DIY Accesories',
+		icon: GiSewingNeedle
 	}
 ];

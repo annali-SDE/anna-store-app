@@ -1,4 +1,5 @@
 export const dynamic = 'force-dynamic';
+
 import getProducts from '@/actions/getProducts';
 import getOrders from '@/actions/getOrders';
 import getUsers from '@/actions/getUsers';
@@ -6,8 +7,16 @@ import Overview from './Overview';
 import Container from '../components/Container';
 import BarGraph from './BarGraph';
 import getGraphData from '@/actions/getGraphData';
+import { getCurrentUser } from '@/actions/getCurrentUser';
+
+import NullData from '@/app/components/NullData';
 
 const Admin = async () => {
+	const currentUser = await getCurrentUser();
+	if (!currentUser || currentUser.role !== 'ADMIN') {
+		return <NullData title='You are not authorized to view this page' />;
+	}
+
 	const products = await getProducts({ category: null });
 	const orders = await getOrders();
 	const users = await getUsers();
