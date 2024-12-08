@@ -32,7 +32,6 @@ const ClientNav = () => {
 								<SignedIn>
 									<div className='flex gap-4'>
 										<UserButton />
-										<p>Edit Profile</p>
 									</div>
 								</SignedIn>
 								<SignedOut>

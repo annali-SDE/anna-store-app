@@ -7,13 +7,18 @@ import Overview from './Overview';
 import Container from '../components/Container';
 import BarGraph from './BarGraph';
 import getGraphData from '@/actions/getGraphData';
-import { getCurrentUser } from '@/actions/getCurrentUser';
+import { auth } from '@clerk/nextjs/server';
+import { getUserRole } from '@/actions/users';
 
 import NullData from '@/app/components/NullData';
 
 const Admin = async () => {
-	const currentUser = await getCurrentUser();
-	if (!currentUser || currentUser.role !== 'ADMIN') {
+	const user = await auth();
+	if (!user || !user.userId) {
+		return <NullData title='You are not authorized to view this page' />;
+	}
+	const role = await getUserRole(user.userId);
+	if (!role || role !== 'ADMIN') {
 		return <NullData title='You are not authorized to view this page' />;
 	}
 

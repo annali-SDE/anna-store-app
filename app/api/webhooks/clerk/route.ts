@@ -1,6 +1,8 @@
 import { Webhook } from 'svix';
 import { headers } from 'next/headers';
 import { WebhookEvent } from '@clerk/nextjs/server';
+import { createUser, deleteUser } from '@/actions/users';
+import { User } from '@prisma/client';
 
 export async function POST(req: Request) {
 	const CLERK_WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET;
@@ -10,9 +12,6 @@ export async function POST(req: Request) {
 			'Error: Please add CLERK_WEBHOOK_SECRET from Clerk Dashboard to .env or .env.local'
 		);
 	}
-
-	// Create new Svix instance with secret
-	const wh = new Webhook(CLERK_WEBHOOK_SECRET);
 
 	// Get headers
 	const headerPayload = await headers();
@@ -31,6 +30,8 @@ export async function POST(req: Request) {
 	const payload = await req.json();
 	const body = JSON.stringify(payload);
 
+	// Create new Svix instance with secret
+	const wh = new Webhook(CLERK_WEBHOOK_SECRET);
 	let evt: WebhookEvent;
 
 	// Verify payload with headers
@@ -41,23 +42,41 @@ export async function POST(req: Request) {
 			'svix-signature': svix_signature
 		}) as WebhookEvent;
 	} catch (err) {
-		console.error('Error: Could not verify webhook:', err);
+		// console.error('Error: Could not verify webhook:', err);
 		return new Response('Error: Verification error', {
 			status: 400
 		});
 	}
 
-	// Do something with payload
-	// For this guide, log payload to console
-	const { id } = evt.data;
-	console.log(`data-----`, evt.data);
 	const eventType = evt.type;
-	// if (eventType === 'user.created') {
-	// 	const { email, id, first_name, last_name, image_url } = evt.data.payload;
-	// 	console.log(`User created with ID ${id}, name ${name}, and email ${email}`);
-	// }
-	// console.log(`Received webhook with ID ${id} and event type of ${eventType}`);
-	console.log('Webhook payload:', body);
+
+	if (eventType === 'user.created') {
+		const { id, email_addresses, first_name, last_name, image_url } = evt.data;
+
+		if (!id || !email_addresses) {
+			return new Response('Error: Missing user data', {
+				status: 400
+			});
+		}
+		// Save user to database
+		const user = {
+			clerkUserId: id,
+			email: email_addresses[0].email_address,
+			...(first_name ? { firstName: first_name } : {}),
+			...(last_name ? { lastName: last_name } : {}),
+			...(image_url ? { imageUrl: image_url } : {})
+		};
+		await createUser(user as User);
+	} else if (eventType === 'user.deleted') {
+		const { id } = evt.data;
+		if (!id) {
+			return new Response('Error: Missing user data', {
+				status: 400
+			});
+		}
+		// Delete user from database
+		await deleteUser(id);
+	}
 
 	return new Response('Webhook received', { status: 200 });
 }
