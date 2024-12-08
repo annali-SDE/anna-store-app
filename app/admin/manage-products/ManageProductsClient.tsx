@@ -18,7 +18,7 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import { ref, getStorage, deleteObject } from 'firebase/storage';
-import firebaseApp from '@/libs/firebase';
+import firebaseApp from '@/lib/firebase';
 
 interface ManageProductsClientProps {
 	products: Product[];

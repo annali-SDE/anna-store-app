@@ -18,7 +18,7 @@ import {
 	uploadBytesResumable,
 	getDownloadURL
 } from 'firebase/storage';
-import firebaseApp from '@/libs/firebase';
+import firebaseApp from '@/lib/firebase';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 

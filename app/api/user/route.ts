@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import bcrypt from 'bcrypt';
-import prisma from '@/libs/prisma';
+import prisma from '@/lib/prisma';
 
 export async function GET() {
 	const { userId } = auth();

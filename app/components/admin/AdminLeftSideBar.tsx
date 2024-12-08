@@ -17,7 +17,7 @@ const AdminLeftSideBar = () => {
 	const pathname = usePathname();
 	console.log(pathname);
 	const { user } = useUser();
-	console.log('user', user);
+	console.log('user', user?.id);
 	return (
 		<div className='h-screen left-0 top-0 sticky p-10 flex flex-col gap-16 bg-blue-2'>
 			<Image src='/logo.png' alt='logo' width={150} height={70} priority />

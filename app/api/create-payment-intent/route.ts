@@ -1,5 +1,5 @@
 import Strip from 'stripe';
-import prisma from '@/libs/prisma';
+import prisma from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 import { CartProductType } from '@/app/product/[productId]/ProductDetail';
 import { getCurrentUser } from '@/actions/getCurrentUser';

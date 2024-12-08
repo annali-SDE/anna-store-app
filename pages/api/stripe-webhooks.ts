@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import prisma from '../../libs/prisma';
+import prisma from '../../lib/prisma';
 import Stripe from 'stripe';
 import { buffer } from 'micro';
 
@@ -48,7 +48,7 @@ export default async function handler(
 					state: charge.shipping?.address?.state ?? '',
 					postalCode: charge.shipping?.address?.postal_code,
 					country: charge.shipping?.address?.country
-				}
+				};
 				await prisma?.order.update({
 					where: {
 						paymentIntentId: charge.payment_intent
