@@ -49,6 +49,9 @@ model Product{
   images Image[]
   price Float
   inStock Boolean
+  size String
+  Shape String?
+  length String?
   reviews Review[]
 
   createdAt DateTime @default(now())

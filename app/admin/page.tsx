@@ -7,21 +7,8 @@ import Overview from './Overview';
 import Container from '../components/Container';
 import BarGraph from './BarGraph';
 import getGraphData from '@/actions/getGraphData';
-import { auth } from '@clerk/nextjs/server';
-import { getUserRole } from '@/actions/users';
-
-import NullData from '@/app/components/NullData';
 
 const Admin = async () => {
-	const user = await auth();
-	if (!user || !user.userId) {
-		return <NullData title='You are not authorized to view this page' />;
-	}
-	const role = await getUserRole(user.userId);
-	if (!role || role !== 'ADMIN') {
-		return <NullData title='You are not authorized to view this page' />;
-	}
-
 	const products = await getProducts({ category: null });
 	const orders = await getOrders();
 	const users = await getUsers();
@@ -29,7 +16,7 @@ const Admin = async () => {
 	const graphData = await getGraphData();
 
 	return (
-		<div className='pt-8'>
+		<div className='pt-2'>
 			<Container>
 				<Overview products={products} orders={orders} users={users} />
 				<div className='mt-4 mx-auto max-w-[1150px]'>

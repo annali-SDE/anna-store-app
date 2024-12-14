@@ -1,6 +1,6 @@
 'use client';
 
-import { ImageType } from '@/app/admin/add-products/AddProductForm';
+import { ImageType } from '@/app/admin/add-product/AddProductForm';
 import { useCallback, useEffect, useState } from 'react';
 import SelectImage from './SelectImage';
 import Button from '../Button';
@@ -54,6 +54,13 @@ const SelectColor: React.FC<SelectColorProps> = ({
 					onChange={handleCheck}
 					className='cursor-pointer'
 				/>
+				<span
+					className={`rounded-full w-4 h-4 ${
+						item.color === 'White' ? 'border border-black' : ''
+					}`}
+					style={{ background: item.colorCode }}>
+					{/* hello */}
+				</span>
 				<label htmlFor={item.color} className='font-medium cursor-pointer'>
 					{item.color}
 				</label>

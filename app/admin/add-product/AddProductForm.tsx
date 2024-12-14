@@ -1,16 +1,7 @@
 'use client';
 
-import Heading from '@/app/components/Heading';
-import Input from '@/app/components/inputs/Input';
 import { useEffect, useState, useCallback } from 'react';
 import { useForm, FieldValues, SubmitHandler } from 'react-hook-form';
-import TextArea from '@/app/components/inputs/TextArea';
-import CustomCheckBox from '@/app/components/inputs/CustomCheckBox';
-import { categories } from '@/app/utils/categorieLists';
-import CategoryInput from '@/app/components/inputs/CategoryInput';
-import { colors } from '@/app/utils/colors';
-import SelectColor from '@/app/components/inputs/SelectColor';
-import Button from '@/app/components/Button';
 import toast from 'react-hot-toast';
 import {
 	getStorage,
@@ -18,9 +9,24 @@ import {
 	uploadBytesResumable,
 	getDownloadURL
 } from 'firebase/storage';
-import firebaseApp from '@/lib/firebase';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
+
+import Heading from '@/app/components/Heading';
+import Input from '@/app/components/inputs/Input';
+import TextArea from '@/app/components/inputs/TextArea';
+import CustomCheckBox from '@/app/components/inputs/CustomCheckBox';
+import { categories } from '@/app/utils/categorieLists';
+import CategoryInput from '@/app/components/inputs/CategoryInput';
+import { Colors } from '@/app/utils/colors';
+import SelectColor from '@/app/components/inputs/SelectColor';
+
+import firebaseApp from '@/lib/firebase';
+import CustomSelect from '@/app/components/inputs/CustomSelect';
+import { Button } from '../../components/ui/button';
+import { Sizes } from '@/app/utils/size';
+import { Shapes } from '@/app/utils/shape';
+import { Length } from '@/app/utils/length';
 
 export type ImageType = {
 	color: string;
@@ -205,14 +211,6 @@ const AddProductForm = () => {
 				type='number'
 				required
 			/>
-			<Input
-				id='brand'
-				label='Brand'
-				disabled={isLoading}
-				register={register}
-				errors={errors}
-				required
-			/>
 			<TextArea
 				id='description'
 				label='Description'
@@ -221,15 +219,31 @@ const AddProductForm = () => {
 				errors={errors}
 				required
 			/>
+			<div className='w-full flex flex-col gap-2 items-start'>
+				<div className='mb-2 font-semibold'>
+					Select a Size <span className='text-rose-500'>*</span>
+				</div>
+				<CustomSelect options={Sizes} label={'Select a Size'} />
+			</div>
+			<div className='w-full flex flex-col gap-2 items-start'>
+				<div className='mb-2 font-semibold'>Select a Shape</div>
+				<CustomSelect options={Shapes} label={'Select a Shape'} />
+			</div>
+			<div className='w-full flex flex-col gap-2 items-start'>
+				<div className='mb-2 font-semibold'>Select a Length</div>
+				<CustomSelect options={Length} label={'Select a Length'} />
+			</div>
+
 			<CustomCheckBox
 				id='inStock'
 				label='In Stock'
 				disabled={isLoading}
 				register={register}
+				checked={true}
 			/>
 			<div className='w-full font-medium'>
 				<div className='mb-2 font-semibold'>Select a Category</div>
-				<div className='grid grid-cols-2 md:grid-cols-3 gap-3 max-h[50vh] overflow-y-auto'>
+				<div className='grid grid-cols-2 md:grid-cols-4 gap-3 max-h[50vh] overflow-y-auto'>
 					{categories.map((item) => {
 						if (item.label === 'All') {
 							return null;
@@ -249,18 +263,10 @@ const AddProductForm = () => {
 					})}
 				</div>
 			</div>
-			<div className='w-full flex flex-col flex-wrap gap-4'>
-				<div>
-					<div className='font-bold'>
-						Select the available product colors and upload their images.
-					</div>
-					<div className='text-sm'>
-						You must upload an image for each of the color selected otherwise
-						your color selection will be ignored
-					</div>
-				</div>
-				<div className='grid grid-cols-2 gap-3'>
-					{colors.map((item, index) => {
+			<div className='w-full flex flex-col flex-wrap gap-1'>
+				<div className='mb-2 font-semibold'>Select Colors</div>
+				<div className='grid grid-cols-5 gap-1'>
+					{Colors.map((item, index) => {
 						return (
 							<SelectColor
 								key={index}
@@ -274,9 +280,12 @@ const AddProductForm = () => {
 				</div>
 			</div>
 			<Button
-				label={isLoading ? 'Loading...' : 'Add Product'}
+				type='button'
+				variant='primary'
 				onClick={handleSubmit(onSubmit)}
-			/>
+				className='w-full'>
+				{isLoading ? 'Loading...' : 'Add Product'}
+			</Button>
 		</>
 	);
 };

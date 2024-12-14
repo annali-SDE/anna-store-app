@@ -6,25 +6,30 @@ interface CustomCheckBoxProps {
 	label: string;
 	disabled?: boolean;
 	register: UseFormRegister<FieldValues>;
+	checked?: boolean;
 }
 
 const CustomCheckBox: React.FC<CustomCheckBoxProps> = ({
 	id,
 	label,
 	disabled,
-	register
+	register,
+	checked
 }) => {
 	return (
-		<div className='w-full flex flex-rowgap-2 items-center'>
+		<div className='w-full flex flex-row gap-2 items-center'>
 			<input
 				type='checkbox'
 				id={id}
 				disabled={disabled}
 				{...register(id)}
-        placeholder=''
-        className='cursor-pointer'
-      />
-      <label htmlFor={id} className='font-medium cursor-pointer'>{label}</label>
+				placeholder=''
+				className='cursor-pointer'
+				defaultChecked={true}
+			/>
+			<label htmlFor={id} className='font-semibold cursor-pointer'>
+				{label}
+			</label>
 		</div>
 	);
 };

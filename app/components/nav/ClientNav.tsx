@@ -15,7 +15,7 @@ import { CircleUserRound } from 'lucide-react';
 const ClientNav = () => {
 	return (
 		<>
-			<div className='py-4 border-b-[1px]'>
+			<div className='py-4 border-b-[1px] bg-violet-200'>
 				<Container>
 					<div className='flex items-center justify-between gap-3 md-gap-0'>
 						<Link href='/'>

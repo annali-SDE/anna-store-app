@@ -1,6 +1,6 @@
 'use client';
 
-import { ImageType } from '@/app/admin/add-products/AddProductForm';
+import { ImageType } from '@/app/admin/add-product/AddProductForm';
 import { useDropzone } from 'react-dropzone';
 import { useCallback } from 'react';
 

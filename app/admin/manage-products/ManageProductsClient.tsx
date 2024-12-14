@@ -19,6 +19,9 @@ import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import { ref, getStorage, deleteObject } from 'firebase/storage';
 import firebaseApp from '@/lib/firebase';
+import { Plus } from 'lucide-react';
+
+import { Button } from '../../components/ui/button';
 
 interface ManageProductsClientProps {
 	products: Product[];
@@ -172,8 +175,15 @@ const ManageProductsClient: React.FC<ManageProductsClientProps> = ({
 	}, []);
 	return (
 		<div className='max-w-[1150px] m-auto text-xl'>
-			<div className='mb-4 mt-8'>
+			<div className='mb-4 mt-2 flex justify-between'>
 				<Heading title='Manage Products' center />
+				<Button
+					type='button'
+					variant='primary'
+					onClick={() => router.push('/admin/add-product')}>
+					<Plus className='h-4 w-4 mr-2' />
+					Create Product
+				</Button>
 			</div>
 			<div style={{ height: 600, width: '100%' }}>
 				<DataGrid

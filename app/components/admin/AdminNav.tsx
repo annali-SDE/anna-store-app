@@ -9,8 +9,7 @@ import {
 	SignedIn,
 	SignedOut,
 	SignInButton,
-	UserButton,
-	useUser
+	UserButton
 } from '@clerk/clerk-react';
 import { CircleUserRound } from 'lucide-react';
 
@@ -37,7 +36,7 @@ const AdminNav = () => {
 	}, []);
 	return (
 		<div className='flex flex-1'>
-			<div className='sticky top-0 z-20 w-full flex justify-between items-center px-8 py-4 bg-blue-2'>
+			<div className='sticky top-0 z-20 w-full flex justify-between items-center px-8 py-4 bg-violet-200'>
 				<Image src='/logo4.png' alt='logo' width={65} height={65} />
 				<div className='flex gap-8 max-md:hidden'>
 					{adminNavLinks.map((link) => (
