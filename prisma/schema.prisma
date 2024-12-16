@@ -21,6 +21,7 @@ model User {
 
   orders        Order[]
   reviews       Review[]
+  products      Product[]
 }
 
 model Order{
@@ -45,17 +46,19 @@ model Product{
   name String
   description String
   category String
-  brand String
   images Image[]
-  price Float
+  price Price[]
   inStock Boolean
-  size String
   Shape String?
   length String?
+  size String @default("One Size")
   reviews Review[]
+  userId String @db.ObjectId
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
 }
 
 model Review{
@@ -78,10 +81,12 @@ type CartProductType {
 	name String
 	description String
 	category String
-	brand String
 	selectedImg Image
 	quantity Int
-	price Float
+	price Price
+  Shape String?
+  length String?
+  size String @default("One Size")
 }
 
 type Image {
@@ -97,6 +102,11 @@ type Address {
   line2 String?
   postalCode String
   state String
+}
+
+type Price {
+  price Float
+  quantity String
 }
 
 enum Role{

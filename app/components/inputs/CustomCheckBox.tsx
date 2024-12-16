@@ -13,8 +13,7 @@ const CustomCheckBox: React.FC<CustomCheckBoxProps> = ({
 	id,
 	label,
 	disabled,
-	register,
-	checked
+	register
 }) => {
 	return (
 		<div className='w-full flex flex-row gap-2 items-center'>

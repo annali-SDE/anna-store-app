@@ -24,9 +24,7 @@ import SelectColor from '@/app/components/inputs/SelectColor';
 import firebaseApp from '@/lib/firebase';
 import CustomSelect from '@/app/components/inputs/CustomSelect';
 import { Button } from '../../components/ui/button';
-import { Sizes } from '@/app/utils/size';
-import { Shapes } from '@/app/utils/shape';
-import { Length } from '@/app/utils/length';
+import { sizeList, shapeList, lengthList } from '@/app/utils/selectOptions';
 
 export type ImageType = {
 	color: string;
@@ -57,11 +55,13 @@ const AddProductForm = () => {
 		defaultValues: {
 			name: '',
 			describe: '',
-			brand: '',
 			category: '',
 			inStorck: false,
 			images: [],
-			price: ''
+			price: '',
+			size: '',
+			shape: '',
+			length: ''
 		}
 	});
 
@@ -76,6 +76,10 @@ const AddProductForm = () => {
 			setIsProductCreated(false);
 		}
 	}, [isProductCreated]);
+
+	const setCustomeValue = (id: string, value: any) => {
+		setValue(id, value);
+	};
 
 	const onSubmit: SubmitHandler<FieldValues> = async (data) => {
 		setIsLoading(true);
@@ -165,7 +169,7 @@ const AddProductForm = () => {
 
 	const category = watch('category');
 
-	const setCustomValue = (id: string, value: any) => {
+	const setCustomValue = (id: string, value: string) => {
 		setValue(id, value, {
 			shouldValidate: true,
 			shouldDirty: true,
@@ -220,18 +224,28 @@ const AddProductForm = () => {
 				required
 			/>
 			<div className='w-full flex flex-col gap-2 items-start'>
-				<div className='mb-2 font-semibold'>
-					Select a Size <span className='text-rose-500'>*</span>
-				</div>
-				<CustomSelect options={Sizes} label={'Select a Size'} />
+				<div className='font-semibold'>Select a Size</div>
+				<CustomSelect
+					field={'size'}
+					options={sizeList}
+					setCustomeValue={setCustomeValue}
+				/>
 			</div>
 			<div className='w-full flex flex-col gap-2 items-start'>
-				<div className='mb-2 font-semibold'>Select a Shape</div>
-				<CustomSelect options={Shapes} label={'Select a Shape'} />
+				<div className='font-semibold'>Select a Shape</div>
+				<CustomSelect
+					field={'shape'}
+					options={shapeList}
+					setCustomeValue={setCustomeValue}
+				/>
 			</div>
 			<div className='w-full flex flex-col gap-2 items-start'>
-				<div className='mb-2 font-semibold'>Select a Length</div>
-				<CustomSelect options={Length} label={'Select a Length'} />
+				<div className='font-semibold'>Select a Length</div>
+				<CustomSelect
+					field={'length'}
+					options={lengthList}
+					setCustomeValue={setCustomeValue}
+				/>
 			</div>
 
 			<CustomCheckBox
