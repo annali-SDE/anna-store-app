@@ -46,3 +46,11 @@ export const lengthList: selectOption[] = [
 	{ group: 'Length', value: '2 m', label: '2 m' },
 	{ group: 'Length', value: '10 m', label: '10 m' }
 ];
+
+export const unitList: selectOption[] = [
+	{ group: 'Unit', value: 'pc', label: 'pc' },
+	{ group: 'Unit', value: 'bag', label: 'bag' },
+	{ group: 'Unit', value: 'g', label: 'g' },
+	{ group: 'Unit', value: 'ml', label: 'ml' },
+	{ group: 'Unit', value: 'scoop', label: 'scoop' }
+];

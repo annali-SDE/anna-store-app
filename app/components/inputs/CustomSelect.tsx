@@ -1,10 +1,4 @@
-import Select, { SelectChangeEvent } from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
-import { sizeList } from '@/app/utils/size';
-import { Shapes } from '@/app/utils/shape';
-import { Length } from '@/app/utils/length';
 import { Autocomplete } from '@mui/material';
-import { styled, lighten, darken } from '@mui/system';
 import TextField from '@mui/material/TextField';
 import { selectOption } from '@/types';
 

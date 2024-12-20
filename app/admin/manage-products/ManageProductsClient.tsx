@@ -1,10 +1,6 @@
 'use client';
 
-import { Product } from '@prisma/client';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { formatPrice } from '@/app/utils/formatPrice';
-import Heading from '@/app/components/Heading';
-import Status from '@/app/components/Status';
 import {
 	MdCached,
 	MdClose,
@@ -12,7 +8,7 @@ import {
 	MdDone,
 	MdRemoveRedEye
 } from 'react-icons/md';
-import ActionBtn from '@/app/components/ActionBtn';
+
 import { useCallback } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
@@ -20,8 +16,13 @@ import { useRouter } from 'next/navigation';
 import { ref, getStorage, deleteObject } from 'firebase/storage';
 import firebaseApp from '@/lib/firebase';
 import { Plus } from 'lucide-react';
+import Button from '@mui/material/Button';
 
-import { Button } from '../../components/ui/button';
+import { Product } from '@prisma/client';
+import ActionBtn from '@/app/components/ActionBtn';
+import { formatPrice } from '@/app/utils/formatPrice';
+import Heading from '@/app/components/Heading';
+import Status from '@/app/components/Status';
 
 interface ManageProductsClientProps {
 	products: Product[];
@@ -40,7 +41,6 @@ const ManageProductsClient: React.FC<ManageProductsClientProps> = ({
 				name: product.name,
 				price: formatPrice(product.price),
 				category: product.category,
-				brand: product.brand,
 				inStock: product.inStock,
 				images: product.images
 			};
@@ -69,11 +69,6 @@ const ManageProductsClient: React.FC<ManageProductsClientProps> = ({
 		{
 			field: 'category',
 			headerName: 'Category',
-			width: 100
-		},
-		{
-			field: 'brand',
-			headerName: 'Brand',
 			width: 100
 		},
 		{
@@ -179,7 +174,8 @@ const ManageProductsClient: React.FC<ManageProductsClientProps> = ({
 				<Heading title='Manage Products' center />
 				<Button
 					type='button'
-					variant='primary'
+					variant='contained'
+					sx={{ backgroundColor: '#8B5CF6' }}
 					onClick={() => router.push('/admin/add-product')}>
 					<Plus className='h-4 w-4 mr-2' />
 					Create Product

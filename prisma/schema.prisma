@@ -44,15 +44,16 @@ model Order{
 model Product{
   id String @id @default(auto()) @map("_id") @db.ObjectId
   name String
-  description String
+  description String?
   category String
   images Image[]
-  price Price[]
+  prices Price[]
   inStock Boolean
-  Shape String?
+  shape String?
   length String?
   size String @default("One Size")
   reviews Review[]
+  inventory Int @default(1)
   userId String @db.ObjectId
 
   createdAt DateTime @default(now())
@@ -83,8 +84,8 @@ type CartProductType {
 	category String
 	selectedImg Image
 	quantity Int
-	price Price
-  Shape String?
+	prices Price[]
+  shape String?
   length String?
   size String @default("One Size")
 }
@@ -106,7 +107,8 @@ type Address {
 
 type Price {
   price Float
-  quantity String
+  quantity Int
+  unit String
 }
 
 enum Role{

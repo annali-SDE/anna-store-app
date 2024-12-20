@@ -7,14 +7,14 @@ import Button from '../Button';
 
 interface SelectColorProps {
 	item: ImageType;
-	addImageToSate: (value: ImageType) => void;
+	addImageToState: (value: ImageType) => void;
 	removeImageFromState: (value: ImageType) => void;
 	isProductCreated: boolean;
 }
 
 const SelectColor: React.FC<SelectColorProps> = ({
 	item,
-	addImageToSate,
+	addImageToState,
 	removeImageFromState,
 	isProductCreated
 }) => {
@@ -30,7 +30,7 @@ const SelectColor: React.FC<SelectColorProps> = ({
 
 	const handleFileChange = useCallback((value: File) => {
 		setFile(value);
-		addImageToSate({
+		addImageToState({
 			...item,
 			image: value
 		});

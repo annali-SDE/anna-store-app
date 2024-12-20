@@ -13,7 +13,7 @@ import {
 
 export const categories = [
 	{
-		label: 'All',
+		label: 'Live Sales',
 		icon: MdStorefront
 	},
 	{

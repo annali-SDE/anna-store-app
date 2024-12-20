@@ -37,7 +37,13 @@ const AdminNav = () => {
 	return (
 		<div className='flex flex-1'>
 			<div className='sticky top-0 z-20 w-full flex justify-between items-center px-8 py-4 bg-violet-200'>
-				<Image src='/logo4.png' alt='logo' width={65} height={65} />
+				<Image
+					src='/logo4.png'
+					alt='logo'
+					width={65}
+					height={65}
+					className='max-h-[100px] max-w-[100px]'
+				/>
 				<div className='flex gap-8 max-md:hidden'>
 					{adminNavLinks.map((link) => (
 						<Link
