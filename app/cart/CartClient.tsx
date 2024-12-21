@@ -4,7 +4,8 @@ import { useCart } from '@/hooks/useCart';
 import Link from 'next/link';
 import { MdArrowBack } from 'react-icons/md';
 import Heading from '../components/Heading';
-import Button from '../components/Button';
+import { Button } from '@mui/material';
+// import Button from '../components/Button';
 import CartItem from './CartItem';
 import { formatPrice } from '../utils/formatPrice';
 import { SafeUser } from '@/types';
@@ -16,6 +17,7 @@ interface CartClientProps {
 
 const CartClient: React.FC<CartClientProps> = ({ currentUser }) => {
 	const { cartProducts, handleClearCart, cartTotalAmount } = useCart();
+	console.log('cartProducts', cartProducts);
 	const router = useRouter();
 
 	if (!cartProducts || cartProducts.length === 0) {
@@ -37,24 +39,26 @@ const CartClient: React.FC<CartClientProps> = ({ currentUser }) => {
 		<div>
 			<Heading title='Shopping Cart' center />
 			<div className='grid grid-cols-5 text-xs gap-4 pb-2 items-center mt-12 '>
-				<div className='col-span-2 justify-self-start'>Product</div>
+				<div className='justify-self-start'>Product</div>
 				<div className='justify-self-center'>Price</div>
+				<div className='justify-self-center'>Unit</div>
 				<div className='justify-self-center'>Quantity</div>
 				<div className='justify-self-end font-semibold'>Total</div>
 			</div>
 			<div>
-				{cartProducts.map((item) => {
-					return <CartItem key={item.id} item={item} />;
+				{cartProducts.map((item, index) => {
+					return <CartItem key={index} item={item} index={index} />;
 				})}
 			</div>
 			<div className='border-t-[1.5px] border-slate-200 py-4 flex justify-between gap-4'>
-				<div className='w-[90px]'>
+				<div>
 					<Button
-						label='Clear Cart'
+						variant='contained'
 						onClick={() => handleClearCart()}
-						small
-						outline
-					/>
+						size='small'
+						color='error'>
+						Clear Cart
+					</Button>
 				</div>
 				<div className='text-sm flex flex-col gap-1 items-start'>
 					<div>
@@ -67,12 +71,14 @@ const CartClient: React.FC<CartClientProps> = ({ currentUser }) => {
 							Taxes and shipping calculate at checkout
 						</p>
 						<Button
-							label={currentUser ? 'Checkout' : 'Login To Checkout'}
-							outline={currentUser ? false : true}
+							variant={currentUser ? 'contained' : 'outlined'}
+							sx={{ backgroundColor: '#8B5CF6' }}
 							onClick={() => {
 								currentUser ? router.push('/checkout') : router.push('/login');
-							}}
-						/>
+							}}>
+							{currentUser ? 'Checkout' : 'Login To Checkout'}
+						</Button>
+
 						<Link
 							href='/'
 							className='text-slate-500 flex items-center gap-1 mt-2'>

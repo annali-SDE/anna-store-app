@@ -19,7 +19,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ data }) => {
 		<div
 			className='col-span-1 cursor-pointer border-[1.2px] border-slate-200 bg-slate-50 rounded-sm p-2 transition hover:scale-105 text-center text-sm'
 			onClick={() => router.push(`/product/${data.id}`)}>
-			<div className='flex flex-col items-center w-full gap-8'>
+			<div className='flex flex-col items-center w-full gap-2'>
 				<div className='aspect-square overflow-hidden relative w-full'>
 					<Image
 						fill
@@ -34,7 +34,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ data }) => {
 					<Rating value={productReating} readOnly />
 				</div>
 				<div>{data.reviews.length} reviews</div>
-				<div className='font-semibold'>{formatPrice(data.price)}</div>
+				<div className='font-semibold'>{formatPrice(data.prices[0].price)}</div>
 			</div>
 		</div>
 	);

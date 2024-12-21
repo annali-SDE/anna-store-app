@@ -3,7 +3,7 @@
 import { ImageType } from '@/app/admin/add-product/AddProductForm';
 import { useCallback, useEffect, useState } from 'react';
 import SelectImage from './SelectImage';
-import Button from '../Button';
+import { Button } from '@mui/material';
 
 interface SelectColorProps {
 	item: ImageType;
@@ -46,7 +46,7 @@ const SelectColor: React.FC<SelectColorProps> = ({
 
 	return (
 		<div className='grid grid-cols-1 overflow-y-auto border-b-[1.2px] border-slate-200 items-center p-2'>
-			<div className='flex flex-row gap-2 items-center h-[60px]'>
+			<div className='flex flex-row gap-2 items-center h-[100px]'>
 				<input
 					id={item.color}
 					type='checkbox'
@@ -72,18 +72,20 @@ const SelectColor: React.FC<SelectColorProps> = ({
 					</div>
 				)}
 				{file && (
-					<div className='flex flex-row gap-2 text-sm col-span-2 items-center justify-between'>
+					<div className='flex flex-col gap-2 text-sm col-span-2 items-center justify-between'>
 						<p>{file?.name}</p>
 						<div className='w-70px'>
 							<Button
-								label='Cancel'
-								small
-								outline
+								type='button'
+								variant='contained'
+								size='small'
+								color='error'
 								onClick={() => {
 									setFile(null);
 									removeImageFromState(item);
-								}}
-							/>
+								}}>
+								Cancel
+							</Button>
 						</div>
 					</div>
 				)}

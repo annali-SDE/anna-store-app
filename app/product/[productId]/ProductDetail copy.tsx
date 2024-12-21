@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useCallback, useState, use } from 'react';
+import React, { useEffect, useCallback, useState } from 'react';
 import { Rating } from '@mui/material';
 import SetColor from '@/app/components/products/SetColor';
 import SetQuantity from '@/app/components/products/SetQuantity';
@@ -12,20 +12,17 @@ import { useRouter } from 'next/navigation';
 import { Product } from '@prisma/client';
 
 interface ProductDetailProps {
-	product: Product;
+	product: any;
 }
 
 export type CartProductType = {
 	id: string;
 	name: string;
-	description: string | null;
+	description: string;
 	category: string;
 	selectedImg: SelectedImgType;
 	quantity: number;
 	price: PriceType;
-	size: string;
-	length: string;
-	shape: string;
 };
 
 export type PriceType = {
@@ -47,10 +44,9 @@ const Horizontal = () => {
 const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
 	const { handleAddProductToCart, cartProducts } = useCart();
 	const [isProductInCart, setIsProductInCart] = useState(false);
-	const [currentPrice, setCurrentPrice] = useState<PriceType>(
-		product.prices[0]
+	const [currentPrice, setCurrentPrice] = useState<number>(
+		product.prices[0].price
 	);
-
 	const [cartProduct, setCartProduct] = useState<CartProductType>({
 		id: product.id,
 		name: product.name,
@@ -58,13 +54,22 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
 		category: product.category,
 		selectedImg: { ...product.images[0] },
 		quantity: 1,
-		price: currentPrice,
-		size: '',
-		length: '',
-		shape: ''
+		price: product.price
 	});
 
 	const router = useRouter();
+
+	useEffect(() => {
+		setIsProductInCart(false);
+		if (cartProducts) {
+			const existingIndex = cartProducts.findIndex(
+				(item) => item.id === product.id
+			);
+			if (existingIndex > -1) {
+				setIsProductInCart(true);
+			}
+		}
+	}, [cartProducts, product.id]);
 
 	const productReating =
 		product.reviews.reduce(
@@ -90,7 +95,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
 		});
 	}, []);
 
-	const handlePriceSelect = useCallback((price: PriceType) => {
+	const handlePriceSelect = useCallback((price: number) => {
 		setCurrentPrice(price);
 	}, []);
 
@@ -119,57 +124,76 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
 					{product.inStock ? 'In stock' : 'Out of stock'}
 				</div>
 				<Horizontal />
-
-				<div>
-					<SetColor
-						images={product.images}
-						cartProduct={cartProduct}
-						handleColorSelect={handleColorSelect}
-					/>
-				</div>
-				<Horizontal />
-				<div>
-					<div className='flex flex-row gap-4'>
-						<p className='font-semibold'>Price: </p>
+				{isProductInCart ? (
+					<>
+						<p className='mb-2 text-slate-500 flex items-center gap-1'>
+							<MdCheckCircle className='text-teal-400' size={20} />
+						</p>
+						<div className='max-w-[300px]'>
+							<Button
+								variant='contained'
+								sx={{ backgroundColor: '#8B5CF6' }}
+								onClick={() => {
+									router.push('/cart');
+								}}>
+								View Cart
+							</Button>
+						</div>
+					</>
+				) : (
+					<>
 						<div>
-							<div className='grid grid-cols-4 gap-2'>
-								{product.prices &&
-									product.prices.map((price, index) => (
-										<Button
-											key={index}
-											variant={
-												currentPrice.price === price.price
-													? 'contained'
-													: 'outlined'
-											}
-											sx={{
-												padding: '3px'
-											}}
-											onClick={() =>
-												handlePriceSelect(price)
-											}>{`$ ${price.price} / ${price.unit}`}</Button>
-									))}
+							<SetColor
+								images={product.images}
+								cartProduct={cartProduct}
+								handleColorSelect={handleColorSelect}
+							/>
+						</div>
+						<Horizontal />
+						<div>
+							<div className='flex flex-row gap-4'>
+								<p className='font-semibold'>Price: </p>
+								<div>
+									<div className='grid grid-cols-4 gap-2'>
+										{cartProduct.prices &&
+											cartProduct.prices.map((price, index) => (
+												<Button
+													key={index}
+													variant={
+														currentPrice === price.price
+															? 'contained'
+															: 'outlined'
+													}
+													sx={{
+														padding: '3px'
+													}}
+													onClick={() =>
+														handlePriceSelect(price.price)
+													}>{`$ ${price.price} / ${price.unit}`}</Button>
+											))}
+									</div>
+								</div>
 							</div>
 						</div>
-					</div>
-				</div>
-				<Horizontal />
-				<div>
-					<SetQuantity
-						cartProduct={cartProduct}
-						handleQuantityIncrease={handleQuantityIncrease}
-						handleQuantityDecrease={handleQuantityDecrease}
-					/>
-				</div>
-				<Horizontal />
-				<div className='max-w-[300px]'>
-					<Button
-						variant='contained'
-						sx={{ backgroundColor: '#8B5CF6' }}
-						onClick={() => handleAddProductToCart(cartProduct, currentPrice)}>
-						Add To Cart
-					</Button>
-				</div>
+						<Horizontal />
+						<div>
+							<SetQuantity
+								cartProduct={cartProduct}
+								handleQuantityIncrease={handleQuantityIncrease}
+								handleQuantityDecrease={handleQuantityDecrease}
+							/>
+						</div>
+						<Horizontal />
+						<div className='max-w-[300px]'>
+							<Button
+								variant='contained'
+								sx={{ backgroundColor: '#8B5CF6' }}
+								onClick={() => handleAddProductToCart(cartProduct)}>
+								Add To Cart
+							</Button>
+						</div>
+					</>
+				)}
 			</div>
 		</div>
 	);

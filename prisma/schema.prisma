@@ -80,11 +80,11 @@ model Review{
 type CartProductType {
 	id String
 	name String
-	description String
+	description String?
 	category String
 	selectedImg Image
 	quantity Int
-	prices Price[]
+	price Price
   shape String?
   length String?
   size String @default("One Size")

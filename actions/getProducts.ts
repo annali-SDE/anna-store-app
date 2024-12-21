@@ -8,6 +8,7 @@ export interface IProductsParams {
 export default async function getProducts(params: IProductsParams) {
 	try {
 		const { category, searchTerm } = params;
+		console.log('category', category, 'searchTerm', searchTerm);
 		let searchString = searchTerm;
 		if (!searchTerm) {
 			searchString = '';

@@ -12,8 +12,8 @@ interface HomeProps {
 
 export default async function Home({ searchParams }: HomeProps) {
 	// TODO: Fetch products from API
-	// const products = await getProducts(searchParams);
-	const products: any = [];
+	const products = await getProducts(searchParams);
+
 	if (!products || products.length === 0) {
 		return (
 			<NullData title='Oops! No products found. Click "All" to clear filters' />

@@ -5,7 +5,10 @@ import {
 	useCallback,
 	useEffect
 } from 'react';
-import { CartProductType } from '@/app/product/[productId]/ProductDetail';
+import {
+	CartProductType,
+	PriceType
+} from '@/app/product/[productId]/ProductDetail';
 import { toast } from 'react-hot-toast';
 
 type CartContextType = {
@@ -13,7 +16,10 @@ type CartContextType = {
 	cartProducts: CartProductType[] | null;
 	cartTotalAmount: number;
 	paymentIntent: string | null;
-	handleAddProductToCart: (product: CartProductType) => void;
+	handleAddProductToCart: (
+		product: CartProductType,
+		currentPrice: PriceType
+	) => void;
 	handleRemoveProductFromCart: (product: CartProductType) => void;
 	handleCartQtyIncrease: (product: CartProductType) => void;
 	handleCartQtyDecrease: (product: CartProductType) => void;
@@ -38,7 +44,8 @@ export const CartContextProvider = (props: Props) => {
 	useEffect(() => {
 		const cartItems: any = localStorage.getItem('eShopCartItems');
 		const cProducts: CartProductType[] | null = JSON.parse(cartItems);
-		const paymentIntent: string | null = localStorage.getItem('eShopPaymentIntent');
+		const paymentIntent: string | null =
+			localStorage.getItem('eShopPaymentIntent');
 
 		setCartProducts(cProducts);
 		setPaymentIntent(paymentIntent);
@@ -49,7 +56,7 @@ export const CartContextProvider = (props: Props) => {
 			if (cartProducts) {
 				const { total, qty } = cartProducts.reduce(
 					(acc, item) => {
-						const itemTotal = item.price * item.quantity;
+						const itemTotal = item.price.price * item.quantity;
 						acc.total += itemTotal;
 						acc.qty += item.quantity;
 
@@ -68,12 +75,24 @@ export const CartContextProvider = (props: Props) => {
 	}, [cartProducts]);
 
 	const handleAddProductToCart = useCallback(
-		(product: CartProductType) => {
+		(product: CartProductType, currentPrice: PriceType) => {
+			const productData = { ...product, price: currentPrice };
 			let updatedCart;
 			if (!cartProducts) {
-				updatedCart = [product];
+				updatedCart = [productData];
 			} else {
-				updatedCart = [...cartProducts, product];
+				let index = cartProducts.findIndex(
+					(item) =>
+						item.id === productData.id &&
+						item.price.price === productData.price.price
+				);
+				console.log('index', index);
+				if (index > -1) {
+					updatedCart = [...cartProducts];
+					updatedCart[index].quantity = ++updatedCart[index].quantity;
+				} else {
+					updatedCart = [...cartProducts, productData];
+				}
 			}
 
 			toast.success('Product added to cart');
@@ -87,16 +106,15 @@ export const CartContextProvider = (props: Props) => {
 	const handleRemoveProductFromCart = useCallback(
 		(product: CartProductType) => {
 			if (cartProducts) {
-				const filteredProducts = cartProducts.filter((item) => {
-					return item.id !== product.id;
-				});
-				setCartProducts(filteredProducts);
-				toast.success('Product removed from cart');
-
-				localStorage.setItem(
-					'eShopCartItems',
-					JSON.stringify(filteredProducts)
+				let index = cartProducts.findIndex(
+					(item) =>
+						item.id === product.id && item.price.price === product.price.price
 				);
+				let updatedCart = [...cartProducts];
+				updatedCart.splice(index, 1);
+				toast.success('Product removed from cart');
+				localStorage.setItem('eShopCartItems', JSON.stringify(updatedCart));
+				setCartProducts(updatedCart);
 			}
 		},
 		[cartProducts]
