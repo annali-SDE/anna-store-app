@@ -1,13 +1,14 @@
 import prisma from '@/lib/prisma';
+import { Product } from '.prisma/client';
 
 export interface IProductParams {
 	productId?: string;
 }
 
-export default async function getProduct(params: IProductParams) {
+export default async function getProductById(params: IProductParams) {
 	try {
 		const { productId } = params;
-		const product = await prisma.product.findUnique({
+		const product: Product | null = await prisma.product.findUnique({
 			where: {
 				id: productId
 			},
@@ -21,7 +22,7 @@ export default async function getProduct(params: IProductParams) {
 			}
 		});
 		if (!product) {
-			throw new Error('Product not found');
+			return null;
 		}
 		return product;
 	} catch (error: any) {

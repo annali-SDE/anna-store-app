@@ -217,7 +217,7 @@ const ManageProductsClient: React.FC<ManageProductsClientProps> = ({
 												<ActionBtn
 													icon={MdRemoveRedEye}
 													onClick={() => {
-														router.push(`products/${row.id}`);
+														router.push(`manage-product/${row.id}`);
 													}}
 													label='Preview'
 												/>

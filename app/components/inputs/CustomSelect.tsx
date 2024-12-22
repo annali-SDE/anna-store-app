@@ -6,12 +6,16 @@ interface CustomSelectProps {
 	options: selectOption[];
 	field: string;
 	setCustomeValue: (field: string, value: string) => void;
+	disabled?: boolean;
+	selectedValue?: string;
 }
 
 const CustomSelect: React.FC<CustomSelectProps> = ({
 	options,
 	field,
-	setCustomeValue
+	setCustomeValue,
+	disabled,
+	selectedValue
 }) => {
 	return (
 		<div>
@@ -20,8 +24,16 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
 				groupBy={(option) => option.group}
 				getOptionLabel={(option) => option.label || ''}
 				sx={{ width: 300 }}
+				disabled={disabled}
 				renderInput={(params) => (
-					<TextField {...params} label={`Select a ${field}`} />
+					<TextField
+						{...params}
+						label={
+							selectedValue && selectedValue?.length > 0
+								? selectedValue
+								: `Select a ${field}`
+						}
+					/>
 				)}
 				onChange={(event, v) => {
 					setCustomeValue(field, v?.value || '');

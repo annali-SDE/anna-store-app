@@ -1,12 +1,6 @@
 'use client';
 
-import {
-	useEffect,
-	useState,
-	useCallback,
-	use,
-	ReactEventHandler
-} from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useForm, FieldValues, SubmitHandler, set } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import {
@@ -17,18 +11,9 @@ import {
 } from 'firebase/storage';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
-import InputAdornment from '@mui/material/InputAdornment';
-import MenuItem from '@mui/material/MenuItem';
-import Typography from '@mui/material/Typography';
-
 import { styled } from '@mui/material/styles';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
 import TableCell, { tableCellClasses } from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import Paper from '@mui/material/Paper';
 import { purple } from '@mui/material/colors';
 import MuiTextField from '@mui/material/TextField';
 
@@ -44,13 +29,10 @@ import SelectColor from '@/app/components/inputs/SelectColor';
 import firebaseApp from '@/lib/firebase';
 import CustomSelect from '@/app/components/inputs/CustomSelect';
 import Button from '@mui/material/Button';
-import {
-	sizeList,
-	shapeList,
-	lengthList,
-	unitList
-} from '@/app/utils/selectOptions';
+import { sizeList, shapeList, lengthList } from '@/app/utils/selectOptions';
 import { selectOption } from '@/types';
+import { Product } from '@prisma/client';
+import PriceForm from '@/app/components/admin/PriceForm';
 
 export type ImageType = {
 	color: string;
@@ -70,7 +52,7 @@ export type UploadedImageType = {
 	image: string;
 };
 
-const AddProductForm = () => {
+const EditProductForm = ({ product }: { product: Product | null }) => {
 	const router = useRouter();
 	const [isLoading, setIsLoading] = useState(false);
 	const [images, setImages] = useState<ImageType[] | null>();
@@ -79,15 +61,16 @@ const AddProductForm = () => {
 	const [shapeOptions, setShapeOptions] = useState<selectOption[]>([]);
 	const [lengthOptions, setLengthOptions] = useState<selectOption[]>([]);
 
-	const [addingPrice, setAddingPrice] = useState<boolean>(true);
+	const [addingPrice, setAddingPrice] = useState<boolean>(false);
 	const [price, setPrice] = useState<number | null>(null);
 	const [quantity, setQuantity] = useState<number | null>(null);
 	const [unit, setUnit] = useState<string | null>(null);
-	const [prices, setPrices] = useState<PriceType[]>([]);
+	const [prices, setPrices] = useState<PriceType[]>(product?.prices || []);
 	const [rows, setRows] = useState<PriceType[] | null>(null);
 	const [priceError, setPriceError] = useState<boolean>(false);
 	const [editPrice, setEditPrice] = useState<boolean>(false);
 	const [editPriceIndex, setEditPriceIndex] = useState<number | null>(null);
+	const [edittingProduct, setEdittingProduct] = useState<boolean>(false);
 
 	type TextFieldProps = {
 		borderColor?: string;
@@ -141,15 +124,15 @@ const AddProductForm = () => {
 		formState: { errors }
 	} = useForm<FieldValues>({
 		defaultValues: {
-			name: '',
-			description: '',
-			category: '',
-			inStock: false,
-			images: [],
-			prices: [],
-			size: 'One Size',
-			shape: '',
-			length: ''
+			name: product?.name || '',
+			description: product?.description || '',
+			category: product?.category || '',
+			inStock: product?.inStock || false,
+			images: product?.images || [],
+			prices: product?.prices || [],
+			size: product?.size || '',
+			shape: product?.shape || '',
+			length: product?.length || ''
 		}
 	});
 
@@ -164,10 +147,6 @@ const AddProductForm = () => {
 			setIsProductCreated(false);
 		}
 	}, [isProductCreated]);
-
-	const setCustomeValue = (id: string, value: any) => {
-		setValue(id, value);
-	};
 
 	const onSubmit: SubmitHandler<FieldValues> = async (data) => {
 		if (!prices || prices.length === 0) {
@@ -195,7 +174,6 @@ const AddProductForm = () => {
 			try {
 				for (const item of data.images) {
 					if (item.image) {
-						// YTo avoid duplicate file names, we can use the current time in milliseconds as part of  the file
 						const fileName = new Date().getTime() + '-' + item.image.name;
 						const storage = getStorage(firebaseApp);
 						const storageRef = ref(storage, `products/${fileName}`);
@@ -291,11 +269,7 @@ const AddProductForm = () => {
 	}, [category]);
 
 	const setCustomValue = (id: string, value: any) => {
-		setValue(id, value, {
-			shouldValidate: true,
-			shouldDirty: true,
-			shouldTouch: true
-		});
+		setValue(id, value);
 	};
 
 	const addImageToState = useCallback((value: ImageType) => {
@@ -379,12 +353,6 @@ const AddProductForm = () => {
 		setRows(rows);
 	};
 
-	useEffect(() => {
-		if (!rows || rows.length === 0) {
-			setAddingPrice(true);
-		}
-	}, [rows]);
-
 	const handleCancelPriceForm = () => {
 		cleanPriceState();
 		setEditPrice(false);
@@ -394,11 +362,32 @@ const AddProductForm = () => {
 
 	return (
 		<>
-			<Heading title='Add a Product' center />
+			<div className='w-full flex flex-row justify-between items-center'>
+				<div>
+					<Heading
+						title={edittingProduct ? 'Edit Product' : 'Product Detail'}
+						center
+					/>
+				</div>
+				<div className='flex flex-row gap-2'>
+					<Button
+						variant='contained'
+						color='warning'
+						size='small'
+						onClick={() => {
+							setEdittingProduct(!edittingProduct);
+						}}>
+						{edittingProduct ? ' Cancel' : 'Edit'}
+					</Button>
+					<Button variant='contained' color='error' size='small'>
+						Delete
+					</Button>
+				</div>
+			</div>
 			<Input
 				id='name'
 				label='Name'
-				disabled={isLoading}
+				disabled={isLoading || !edittingProduct}
 				register={register}
 				errors={errors}
 				required
@@ -406,16 +395,15 @@ const AddProductForm = () => {
 			<TextArea
 				id='description'
 				label='Description'
-				disabled={isLoading}
+				disabled={isLoading || !edittingProduct}
 				register={register}
 				errors={errors}
 			/>
 			<CustomCheckBox
 				id='inStock'
 				label='In Stock'
-				disabled={isLoading}
+				disabled={isLoading || !edittingProduct}
 				register={register}
-				checked={true}
 			/>
 			<div className='w-full font-medium'>
 				<div className='mb-2 font-semibold'>Select a Category</div>
@@ -433,6 +421,7 @@ const AddProductForm = () => {
 									onClick={(category: string) =>
 										setCustomValue('category', category)
 									}
+									disabled={isLoading || !edittingProduct}
 								/>
 							</div>
 						);
@@ -443,7 +432,7 @@ const AddProductForm = () => {
 				<div className='flex flex-col items-start justify-center gap-2 mb-5'>
 					<div className='flex flex-row gap-4'>
 						<div className='font-semibold'>Price</div>
-						{!addingPrice && !editPrice && (
+						{edittingProduct && (!addingPrice || !editPrice) && (
 							<Button
 								variant='contained'
 								sx={{ backgroundColor: '#8B5CF6' }}
@@ -453,131 +442,24 @@ const AddProductForm = () => {
 							</Button>
 						)}
 					</div>
-					{rows && rows.length > 0 && (
-						<div className='w-full'>
-							<TableContainer component={Paper}>
-								<Table sx={{ minWidth: 700 }} aria-label='customized table'>
-									<TableHead>
-										<TableRow>
-											<StyledTableCell align='center'>Price</StyledTableCell>
-											<StyledTableCell align='center'>Quantity</StyledTableCell>
-											<StyledTableCell align='center'>Unit</StyledTableCell>
-											<StyledTableCell align='center'>Actions</StyledTableCell>
-										</TableRow>
-									</TableHead>
-									<TableBody>
-										{rows.map((row, index) => (
-											<StyledTableRow key={index}>
-												<StyledTableCell
-													component='th'
-													scope='row'
-													align='center'>
-													{row.price}
-												</StyledTableCell>
-												<StyledTableCell align='center'>
-													{row.quantity}
-												</StyledTableCell>
-												<StyledTableCell align='center'>
-													{row.unit}
-												</StyledTableCell>
-												<StyledTableCell align='center' className='w-[20%]'>
-													<div className='flex flex-row gap-2'>
-														<Button
-															variant='contained'
-															size='small'
-															color='warning'
-															type='button'
-															onClick={() => handleEditPrice(row, index)}>
-															Edit
-														</Button>
-														<Button
-															variant='contained'
-															size='small'
-															color='error'
-															type='button'
-															onClick={() => handleDeletePrice(index)}>
-															Delete
-														</Button>
-													</div>
-												</StyledTableCell>
-											</StyledTableRow>
-										))}
-									</TableBody>
-								</Table>
-							</TableContainer>
-						</div>
-					)}
 				</div>
-				{(addingPrice || editPrice) && (
-					<div className='flex flex-row gap-4 mb-3'>
-						<TextField
-							id='price'
-							required
-							label='Price'
-							type='number'
-							disabled={isLoading}
-							value={price ?? ''}
-							className='w-[30%] border border-red'
-							borderColor={priceError ? 'red' : ''}
-							slotProps={{
-								input: {
-									startAdornment: (
-										<InputAdornment position='start'>$</InputAdornment>
-									)
-								}
-							}}
-							onChange={(e) => setPrice(Number(e.target.value))}
-						/>
-						<TextField
-							id='quantity'
-							required
-							label='Quantity'
-							type='number'
-							disabled={isLoading}
-							value={quantity ?? ''}
-							borderColor={priceError ? 'red' : ''}
-							className='w-[30%]'
-							onChange={(e) => setQuantity(Number(e.target.value))}
-						/>
-						<TextField
-							id='unit'
-							select
-							label='Unit'
-							disabled={isLoading}
-							value={unit ?? ''}
-							borderColor={priceError ? 'red' : ''}
-							className='w-[20%]'
-							onChange={(e) => setUnit(e.target.value)}>
-							{unitList ? (
-								unitList.map((option) => (
-									<MenuItem key={option.value} value={option.value}>
-										{option.label}
-									</MenuItem>
-								))
-							) : (
-								<MenuItem value=''>{unit}</MenuItem>
-							)}
-						</TextField>
-						<div className='flex flex-row gap-2'>
-							<Button
-								variant='contained'
-								sx={{ backgroundColor: '#8B5CF6' }}
-								size='small'
-								onClick={handleAddPrice}>
-								<Typography textTransform={'capitalize'}>Confirm</Typography>
-							</Button>
-							{rows && rows.length > 0 && (
-								<Button
-									variant='contained'
-									color='error'
-									size='small'
-									onClick={handleCancelPriceForm}>
-									<Typography textTransform={'capitalize'}>Cancel</Typography>
-								</Button>
-							)}
-						</div>
-					</div>
-				)}
+				<PriceForm
+					disabled={isLoading || !edittingProduct}
+					price={price ?? ''}
+					quantity={quantity ?? ''}
+					unit={unit ?? ''}
+					setPrice={setPrice}
+					setQuantity={setQuantity}
+					setUnit={setUnit}
+					priceError={priceError}
+					handleDeletePrice={handleDeletePrice}
+					handleEditPrice={handleEditPrice}
+					prices={prices}
+					addingPrice={addingPrice}
+					editPrice={editPrice}
+					handleAddPrice={handleAddPrice}
+					handleCancelPriceForm={handleCancelPriceForm}
+				/>
 			</div>
 			{category &&
 				(category === 'Press on Nails' ||
@@ -589,19 +471,25 @@ const AddProductForm = () => {
 							<CustomSelect
 								field={'size'}
 								options={sizeOptions}
-								setCustomeValue={setCustomeValue}
+								disabled={isLoading || !edittingProduct}
+								selectedValue={product?.size ?? ''}
+								setCustomeValue={setCustomValue}
 							/>
 							<div className='font-semibold'>Select a Shape</div>
 							<CustomSelect
 								field={'shape'}
 								options={shapeOptions}
-								setCustomeValue={setCustomeValue}
+								disabled={isLoading || !edittingProduct}
+								selectedValue={product?.shape ?? ''}
+								setCustomeValue={setCustomValue}
 							/>
 							<div className='font-semibold'>Select a Length</div>
 							<CustomSelect
 								field={'length'}
 								options={lengthOptions}
-								setCustomeValue={setCustomeValue}
+								disabled={isLoading || !edittingProduct}
+								selectedValue={product?.length ?? ''}
+								setCustomeValue={setCustomValue}
 							/>
 						</div>
 					</div>
@@ -614,6 +502,7 @@ const AddProductForm = () => {
 							<SelectColor
 								key={index}
 								item={item}
+								disabled={isLoading || !edittingProduct}
 								addImageToState={addImageToState}
 								removeImageFromState={removeImageFromState}
 								isProductCreated={isProductCreated}
@@ -632,4 +521,4 @@ const AddProductForm = () => {
 		</>
 	);
 };
-export default AddProductForm;
+export default EditProductForm;

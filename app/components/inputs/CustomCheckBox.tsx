@@ -24,7 +24,6 @@ const CustomCheckBox: React.FC<CustomCheckBoxProps> = ({
 				{...register(id)}
 				placeholder=''
 				className='cursor-pointer'
-				defaultChecked={true}
 			/>
 			<label htmlFor={id} className='font-semibold cursor-pointer'>
 				{label}

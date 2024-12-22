@@ -10,13 +10,15 @@ interface SelectColorProps {
 	addImageToState: (value: ImageType) => void;
 	removeImageFromState: (value: ImageType) => void;
 	isProductCreated: boolean;
+	disabled?: boolean;
 }
 
 const SelectColor: React.FC<SelectColorProps> = ({
 	item,
 	addImageToState,
 	removeImageFromState,
-	isProductCreated
+	isProductCreated,
+	disabled
 }) => {
 	const [isSelected, setIsSelected] = useState(false);
 	const [file, setFile] = useState<File | null>(null);
@@ -51,16 +53,15 @@ const SelectColor: React.FC<SelectColorProps> = ({
 					id={item.color}
 					type='checkbox'
 					checked={isSelected}
+					disabled={disabled}
 					onChange={handleCheck}
-					className='cursor-pointer'
+					className={disabled ? 'cursor-not-allowed' : 'cursor-pointer'}
 				/>
 				<span
 					className={`rounded-full w-4 h-4 ${
 						item.color === 'White' ? 'border border-black' : ''
 					}`}
-					style={{ background: item.colorCode }}>
-					{/* hello */}
-				</span>
+					style={{ background: item.colorCode }}></span>
 				<label htmlFor={item.color} className='font-medium cursor-pointer'>
 					{item.color}
 				</label>
