@@ -12,11 +12,11 @@ export const adminNavLinks = [
 		icon: <LayoutDashboard />,
 		label: 'Dashboard'
 	},
-	{
-		url: '/admin/manage-categories',
-		icon: <Shapes />,
-		label: 'Categories'
-	},
+	// {
+	// 	url: '/admin/manage-categories',
+	// 	icon: <Shapes />,
+	// 	label: 'Categories'
+	// },
 	{
 		url: '/admin/manage-products',
 		icon: <Store />,
@@ -28,7 +28,7 @@ export const adminNavLinks = [
 		label: 'Orders'
 	},
 	{
-		url: '/admin/customers',
+		url: '/admin/manage-customers',
 		icon: <UsersRound />,
 		label: 'Customers'
 	}

@@ -1,15 +1,6 @@
 'use client';
 
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import {
-	MdCached,
-	MdClose,
-	MdDelete,
-	MdDone,
-	MdRemoveRedEye
-} from 'react-icons/md';
-
-import { useCallback } from 'react';
+import { useCallback, useState, Fragment } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
@@ -17,12 +8,38 @@ import { ref, getStorage, deleteObject } from 'firebase/storage';
 import firebaseApp from '@/lib/firebase';
 import { Plus } from 'lucide-react';
 import Button from '@mui/material/Button';
+import {
+	Table,
+	TableBody,
+	TableCell,
+	TableContainer,
+	TableHead,
+	TableRow,
+	Paper,
+	Collapse,
+	Box,
+	Typography,
+	IconButton,
+	TablePagination,
+	List,
+	ListItem,
+	ListItemText
+} from '@mui/material';
+import {
+	MdCached,
+	MdClose,
+	MdDelete,
+	MdDone,
+	MdRemoveRedEye
+} from 'react-icons/md';
+import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io';
 
 import { Product } from '@prisma/client';
 import ActionBtn from '@/app/components/ActionBtn';
 import { formatPrice } from '@/app/utils/formatPrice';
 import Heading from '@/app/components/Heading';
 import Status from '@/app/components/Status';
+import { PriceType } from '@/app/product/[productId]/ProductDetail';
 
 interface ManageProductsClientProps {
 	products: Product[];
@@ -31,15 +48,24 @@ interface ManageProductsClientProps {
 const ManageProductsClient: React.FC<ManageProductsClientProps> = ({
 	products
 }) => {
+	const [expandedRowId, setExpandedRowId] = useState<number | null>(null);
+	const [page, setPage] = useState(0);
+	const [rowsPerPage, setRowsPerPage] = useState(5);
+
 	const router = useRouter();
 	const storage = getStorage(firebaseApp);
+
 	let rows: any = [];
 	if (products) {
 		rows = products.map((product) => {
+			let formattedPrice = `${formatPrice(product.prices[0].price)} / ${
+				product.prices[0].unit
+			}`;
 			return {
 				id: product.id,
 				name: product.name,
-				price: formatPrice(product.price),
+				formattedPrice: formattedPrice,
+				prices: product.prices,
 				category: product.category,
 				inStock: product.inStock,
 				images: product.images
@@ -47,85 +73,26 @@ const ManageProductsClient: React.FC<ManageProductsClientProps> = ({
 		});
 	}
 
-	const columns: GridColDef[] = [
-		{
-			field: 'id',
-			headerName: 'ID',
-			width: 220
-		},
-		{
-			field: 'name',
-			headerName: 'Name',
-			width: 220
-		},
-		{
-			field: 'price',
-			headerName: 'Price(USD)',
-			width: 100,
-			renderCell: (params) => (
-				<div className='font-bold text-slate-800'>{params.row.price}</div>
-			)
-		},
-		{
-			field: 'category',
-			headerName: 'Category',
-			width: 100
-		},
-		{
-			field: 'inStock',
-			headerName: 'In Stock',
-			width: 120,
-			renderCell: (params) => {
-				return (
-					<div className='h-full flex items-center justify-center'>
-						{params.row.inStock === true ? (
-							<Status className='bg-teal-200 text-teal-700 w-full'>
-								in stock
-								<MdDone size={15} />
-							</Status>
-						) : (
-							<Status className='bg-rose-200 text-rose-700 w-full'>
-								in stock
-								<MdClose size={15} />
-							</Status>
-						)}
-					</div>
-				);
-			}
-		},
-		{
-			field: 'actions',
-			headerName: 'Actions',
-			width: 220,
-			renderCell: (params) => {
-				return (
-					<div className='flex h-full gap-x-2 items-center justify-center'>
-						<ActionBtn
-							icon={MdCached}
-							onClick={() => {
-								handleToggleInStock(params.row.id, params.row.inStock);
-							}}
-							label='Refresh'
-						/>
-						<ActionBtn
-							icon={MdDelete}
-							onClick={() => {
-								handleDeleteProduct(params.row.id, params.row.images);
-							}}
-							label='Delete'
-						/>
-						<ActionBtn
-							icon={MdRemoveRedEye}
-							onClick={() => {
-								router.push(`products/${params.row.id}`);
-							}}
-							label='Preview'
-						/>
-					</div>
-				);
-			}
-		}
+	const items = [
+		{ text: 'Inbox', icon: <IoIosArrowDown /> },
+		{ text: 'Drafts', icon: <IoIosArrowUp /> }
+		// Add more items as needed
 	];
+
+	const handleRowClick = (rowId: number) => {
+		setExpandedRowId(expandedRowId === rowId ? null : rowId);
+	};
+
+	const handleChangePage = (event: unknown, newPage: number) => {
+		setPage(newPage);
+	};
+
+	const handleChangeRowsPerPage = (
+		event: React.ChangeEvent<HTMLInputElement>
+	) => {
+		setRowsPerPage(parseInt(event.target.value, 10));
+		setPage(0);
+	};
 
 	const handleToggleInStock = useCallback((id: string, inStock: boolean) => {
 		axios
@@ -168,8 +135,9 @@ const ManageProductsClient: React.FC<ManageProductsClientProps> = ({
 				console.error(err);
 			});
 	}, []);
+
 	return (
-		<div className='max-w-[1150px] m-auto text-xl'>
+		<div className='max-w-[1280px] m-auto text-xl'>
 			<div className='mb-4 mt-2 flex justify-between'>
 				<Heading title='Manage Products' center />
 				<Button
@@ -181,19 +149,141 @@ const ManageProductsClient: React.FC<ManageProductsClientProps> = ({
 					Create Product
 				</Button>
 			</div>
-			<div style={{ height: 600, width: '100%' }}>
-				<DataGrid
-					rows={rows}
-					columns={columns}
-					initialState={{
-						pagination: { paginationModel: { page: 0, pageSize: 9 } }
-					}}
-					pageSizeOptions={[9, 20]}
-					checkboxSelection
-					disableRowSelectionOnClick
+			<TableContainer component={Paper}>
+				<Table>
+					<TableHead>
+						<TableRow>
+							<TableCell>ID</TableCell>
+							<TableCell>Name</TableCell>
+							<TableCell>Price</TableCell>
+							<TableCell>Category</TableCell>
+							<TableCell>In Stock</TableCell>
+							<TableCell>Actions</TableCell>
+						</TableRow>
+					</TableHead>
+					<TableBody>
+						{rows
+							.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+							.map((row: any) => (
+								<Fragment key={row.id}>
+									<TableRow>
+										<TableCell>{row.id}</TableCell>
+										<TableCell>{row.name}</TableCell>
+										<TableCell>
+											{row.formattedPrice}
+											{row.prices && row.prices.length > 1 && (
+												<IconButton
+													aria-label='expand row'
+													size='small'
+													onClick={() => handleRowClick(row.id)}>
+													{expandedRowId === row.id ? (
+														<IoIosArrowUp />
+													) : (
+														<IoIosArrowDown />
+													)}
+												</IconButton>
+											)}
+										</TableCell>
+										<TableCell>{row.category}</TableCell>
+										<TableCell>
+											{row.inStock === true ? (
+												<Status className='bg-teal-200 text-teal-700 w-[90px]'>
+													in stock
+													<MdDone size={15} />
+												</Status>
+											) : (
+												<Status className='bg-rose-200 text-rose-700 w-[90px]'>
+													in stock
+													<MdClose size={15} />
+												</Status>
+											)}
+										</TableCell>
+										<TableCell>
+											<div className='flex h-full gap-x-2 items-center justify-start'>
+												<ActionBtn
+													icon={MdCached}
+													onClick={() => {
+														handleToggleInStock(row.id, row.inStock);
+													}}
+													label='Toggle In Stock'
+												/>
+												<ActionBtn
+													icon={MdDelete}
+													onClick={() => {
+														handleDeleteProduct(row.id, row.images);
+													}}
+													label='Delete'
+												/>
+												<ActionBtn
+													icon={MdRemoveRedEye}
+													onClick={() => {
+														router.push(`products/${row.id}`);
+													}}
+													label='Preview'
+												/>
+											</div>
+										</TableCell>
+									</TableRow>
+									<TableRow>
+										<TableCell
+											style={{ paddingBottom: 0, paddingTop: 0 }}
+											colSpan={6}>
+											<Collapse
+												in={expandedRowId === row.id}
+												timeout='auto'
+												unmountOnExit>
+												<Box margin={1}>
+													<Typography
+														variant='h6'
+														gutterBottom
+														component='div'
+														className='underline underline-offset-8'>
+														Price Options for this Product
+														<List>
+															{row.prices &&
+																row.prices.map(
+																	(item: PriceType, index: number) => (
+																		<Fragment key={index}>
+																			<ListItem>
+																				<ListItemText
+																					primary={`${formatPrice(
+																						item.price
+																					)} / ${item.unit}`}
+																				/>
+																			</ListItem>
+																		</Fragment>
+																	)
+																)}
+														</List>
+														<Button
+															variant='contained'
+															color='error'
+															size='small'
+															onClick={() => handleRowClick(row.id)}>
+															Close
+														</Button>
+													</Typography>
+													<Typography>{row.description}</Typography>
+												</Box>
+											</Collapse>
+										</TableCell>
+									</TableRow>
+								</Fragment>
+							))}
+					</TableBody>
+				</Table>
+				<TablePagination
+					rowsPerPageOptions={[5, 10, 25]}
+					component='div'
+					count={rows.length}
+					rowsPerPage={rowsPerPage}
+					page={page}
+					onPageChange={handleChangePage}
+					onRowsPerPageChange={handleChangeRowsPerPage}
 				/>
-			</div>
+			</TableContainer>
 		</div>
 	);
 };
+
 export default ManageProductsClient;
