@@ -96,7 +96,7 @@ const ManageProductsClient: React.FC<ManageProductsClientProps> = ({
 
 	const handleToggleInStock = useCallback((id: string, inStock: boolean) => {
 		axios
-			.put('/api/products', { id, inStock: !inStock })
+			.patch('/api/products', { id, inStock: !inStock })
 			.then((res) => {
 				toast.success('Product status updated successfully');
 				router.refresh();

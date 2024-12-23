@@ -614,6 +614,7 @@ const AddProductForm = () => {
 							<SelectColor
 								key={index}
 								item={item}
+								isNewProduct={true}
 								addImageToState={addImageToState}
 								removeImageFromState={removeImageFromState}
 								isProductCreated={isProductCreated}

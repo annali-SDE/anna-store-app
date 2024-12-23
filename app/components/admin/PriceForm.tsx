@@ -158,6 +158,7 @@ const PriceForm: React.FC<PriceFormProps> = ({
 						type='number'
 						disabled={disabled}
 						value={price}
+						inputMode='numeric'
 						className={`w-[30%] border border-red ${
 							disabled ? 'cursor-not-allowed' : ''
 						}`}

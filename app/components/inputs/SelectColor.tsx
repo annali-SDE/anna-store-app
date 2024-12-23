@@ -2,6 +2,8 @@
 
 import { ImageType } from '@/app/admin/add-product/AddProductForm';
 import { useCallback, useEffect, useState } from 'react';
+import Image from 'next/image';
+
 import SelectImage from './SelectImage';
 import { Button } from '@mui/material';
 
@@ -11,6 +13,8 @@ interface SelectColorProps {
 	removeImageFromState: (value: ImageType) => void;
 	isProductCreated: boolean;
 	disabled?: boolean;
+	imagePath?: string | null;
+	isNewProduct?: boolean;
 }
 
 const SelectColor: React.FC<SelectColorProps> = ({
@@ -18,10 +22,14 @@ const SelectColor: React.FC<SelectColorProps> = ({
 	addImageToState,
 	removeImageFromState,
 	isProductCreated,
-	disabled
+	disabled,
+	imagePath,
+	isNewProduct
 }) => {
 	const [isSelected, setIsSelected] = useState(false);
 	const [file, setFile] = useState<File | null>(null);
+	const [edittingImage, setEdittingImage] = useState(false);
+	const [showSelectImage, setShowSelectImage] = useState(false);
 
 	useEffect(() => {
 		if (isProductCreated) {
@@ -30,12 +38,23 @@ const SelectColor: React.FC<SelectColorProps> = ({
 		}
 	}, [isProductCreated]);
 
+	useEffect(() => {
+		if (imagePath && imagePath !== '') {
+			setIsSelected(true);
+		}
+	}, [imagePath]);
+
 	const handleFileChange = useCallback((value: File) => {
 		setFile(value);
 		addImageToState({
 			...item,
 			image: value
 		});
+		setShowSelectImage(false);
+	}, []);
+
+	const toggleEdittingImage = useCallback((value: boolean) => {
+		setEdittingImage(value);
 	}, []);
 
 	const handleCheck = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -67,12 +86,50 @@ const SelectColor: React.FC<SelectColorProps> = ({
 				</label>
 			</div>
 			<>
-				{isSelected && !file && (
-					<div className='col-span-2 text-center'>
-						<SelectImage item={item} handleFileChange={handleFileChange} />
+				{isSelected && imagePath && imagePath !== '' && !edittingImage && (
+					<div className='flex flex-col gap-1'>
+						<div>
+							{imagePath && imagePath !== '' && (
+								<div>
+									<Image
+										src={imagePath}
+										alt={item.color}
+										width={80}
+										height={80}
+									/>
+								</div>
+							)}
+						</div>
+						{imagePath && imagePath != '' && (
+							<div className='flex flex-col gap-2 text-sm col-span-2 items-start justify-between'>
+								<div className='w-70px'>
+									<Button
+										type='button'
+										variant='contained'
+										size='small'
+										color='warning'
+										disabled={disabled}
+										onClick={() => {
+											setShowSelectImage(true);
+											toggleEdittingImage(true);
+										}}>
+										Edit
+									</Button>
+								</div>
+							</div>
+						)}
 					</div>
 				)}
-				{file && (
+				{(showSelectImage || (isSelected && isNewProduct && !file)) && (
+					<div className='col-span-2 text-center'>
+						<SelectImage
+							item={item}
+							disabled={disabled}
+							handleFileChange={handleFileChange}
+						/>
+					</div>
+				)}
+				{(file || edittingImage) && (
 					<div className='flex flex-col gap-2 text-sm col-span-2 items-center justify-between'>
 						<p>{file?.name}</p>
 						<div className='w-70px'>
@@ -83,6 +140,8 @@ const SelectColor: React.FC<SelectColorProps> = ({
 								color='error'
 								onClick={() => {
 									setFile(null);
+									toggleEdittingImage(false);
+									setShowSelectImage(false);
 									removeImageFromState(item);
 								}}>
 								Cancel

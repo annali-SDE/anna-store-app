@@ -11,11 +11,11 @@ import {
 } from 'firebase/storage';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
-import { styled } from '@mui/material/styles';
-import TableCell, { tableCellClasses } from '@mui/material/TableCell';
-import TableRow from '@mui/material/TableRow';
-import { purple } from '@mui/material/colors';
-import MuiTextField from '@mui/material/TextField';
+// import { styled } from '@mui/material/styles';
+// import TableCell, { tableCellClasses } from '@mui/material/TableCell';
+// import TableRow from '@mui/material/TableRow';
+// import { purple } from '@mui/material/colors';
+// import MuiTextField from '@mui/material/TextField';
 
 import Heading from '@/app/components/Heading';
 import Input from '@/app/components/inputs/Input';
@@ -40,6 +40,12 @@ export type ImageType = {
 	image: File | null;
 };
 
+export type ProductImageType = {
+	color: string;
+	colorCode: string;
+	image: string;
+};
+
 export type PriceType = {
 	price: number;
 	quantity: number;
@@ -55,7 +61,18 @@ export type UploadedImageType = {
 const EditProductForm = ({ product }: { product: Product | null }) => {
 	const router = useRouter();
 	const [isLoading, setIsLoading] = useState(false);
-	const [images, setImages] = useState<ImageType[] | null>();
+	const [images, setImages] = useState<ImageType[] | null>(
+		product?.images?.map((img) => ({
+			color: img.color,
+			colorCode: img.colorCode,
+			image: new File([img.image], '')
+		})) ?? null
+	);
+
+	const [productImages, setProductImages] = useState<ProductImageType[]>(
+		product?.images || []
+	);
+
 	const [isProductCreated, setIsProductCreated] = useState(false);
 	const [sizeOptions, setSizeOptions] = useState<selectOption[]>([]);
 	const [shapeOptions, setShapeOptions] = useState<selectOption[]>([]);
@@ -66,54 +83,10 @@ const EditProductForm = ({ product }: { product: Product | null }) => {
 	const [quantity, setQuantity] = useState<number | null>(null);
 	const [unit, setUnit] = useState<string | null>(null);
 	const [prices, setPrices] = useState<PriceType[]>(product?.prices || []);
-	const [rows, setRows] = useState<PriceType[] | null>(null);
 	const [priceError, setPriceError] = useState<boolean>(false);
 	const [editPrice, setEditPrice] = useState<boolean>(false);
 	const [editPriceIndex, setEditPriceIndex] = useState<number | null>(null);
 	const [edittingProduct, setEdittingProduct] = useState<boolean>(false);
-
-	type TextFieldProps = {
-		borderColor?: string;
-	};
-
-	const options = {
-		shouldForwardProp: (prop: string) => prop !== 'borderColor'
-	};
-	const outlinedSelectors = [
-		'& .MuiOutlinedInput-notchedOutline',
-		'&:hover .MuiOutlinedInput-notchedOutline',
-		'& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline'
-	];
-	const TextField = styled(
-		MuiTextField,
-		options
-	)<TextFieldProps>(({ borderColor }) => ({
-		'& label.Mui-focused': {
-			color: borderColor
-		},
-		[outlinedSelectors.join(',')]: {
-			borderWidth: 1,
-			borderColor
-		}
-	}));
-
-	const StyledTableCell = styled(TableCell)(({ theme }) => ({
-		[`&.${tableCellClasses.head}`]: {
-			backgroundColor: purple[50]
-		},
-		[`&.${tableCellClasses.body}`]: {
-			fontSize: 14
-		}
-	}));
-	const StyledTableRow = styled(TableRow)(({ theme }) => ({
-		'&:nth-of-type(odd)': {
-			backgroundColor: theme.palette.action.hover
-		},
-		// hide last border
-		'&:last-child td, &:last-child th': {
-			border: 0
-		}
-	}));
 
 	const {
 		register,
@@ -156,7 +129,6 @@ const EditProductForm = ({ product }: { product: Product | null }) => {
 
 		data.prices = prices;
 		setIsLoading(true);
-
 		let uploadedImages: UploadedImageType[] = [];
 		if (!data.category) {
 			setIsLoading(false);
@@ -226,16 +198,16 @@ const EditProductForm = ({ product }: { product: Product | null }) => {
 		};
 
 		await handleImageUploads();
-		const productData = { ...data, images: uploadedImages };
+		const productData = { ...data, images: product?.images, id: product?.id };
 		axios
-			.post('/api/products', productData)
+			.put('/api/products', productData)
 			.then(() => {
-				toast.success('Product added successfully');
+				toast.success('Product updated successfully');
 				setIsProductCreated(true);
 				router.refresh();
 			})
 			.catch((error) => {
-				toast.error('Error adding product to db', error);
+				toast.error('Error updating product to db', error);
 			})
 			.finally(() => {
 				setIsLoading(false);
@@ -296,10 +268,6 @@ const EditProductForm = ({ product }: { product: Product | null }) => {
 		setUnit('');
 	};
 
-	const createData = (price: number, quantity: number, unit: string) => {
-		return { price, quantity, unit };
-	};
-
 	const handleAddPrice = () => {
 		if (!price || !quantity || !unit) {
 			setPriceError(true);
@@ -327,14 +295,11 @@ const EditProductForm = ({ product }: { product: Product | null }) => {
 			priceList = [...prices, newPrice];
 		}
 		setPrices(priceList);
-		const rows = priceList.map((item) => {
-			return createData(item.price, item.quantity, item.unit);
-		});
-		setRows(rows);
 		setEditPrice(false);
 		setEditPriceIndex(null);
 		setAddingPrice(false);
 		cleanPriceState();
+		window.location.reload();
 	};
 
 	const handleEditPrice = (row: PriceType, index: number) => {
@@ -347,10 +312,6 @@ const EditProductForm = ({ product }: { product: Product | null }) => {
 	const handleDeletePrice = (index: number) => {
 		const priceList = prices.filter((item, i) => i !== index);
 		setPrices(priceList);
-		const rows = priceList.map((item) => {
-			return createData(item.price, item.quantity, item.unit);
-		});
-		setRows(rows);
 	};
 
 	const handleCancelPriceForm = () => {
@@ -358,6 +319,22 @@ const EditProductForm = ({ product }: { product: Product | null }) => {
 		setEditPrice(false);
 		setEditPriceIndex(null);
 		setAddingPrice(false);
+		window.location.reload();
+	};
+
+	const getColorImage = (color: string) => {
+		const image = productImages?.find((item) => item.color === color);
+		if (image) {
+			return image.image;
+		}
+		return null;
+	};
+
+	const handleEditStatus = () => {
+		setEdittingProduct(!edittingProduct);
+		if (!edittingProduct) {
+			window.location.reload();
+		}
 	};
 
 	return (
@@ -374,9 +351,7 @@ const EditProductForm = ({ product }: { product: Product | null }) => {
 						variant='contained'
 						color='warning'
 						size='small'
-						onClick={() => {
-							setEdittingProduct(!edittingProduct);
-						}}>
+						onClick={handleEditStatus}>
 						{edittingProduct ? ' Cancel' : 'Edit'}
 					</Button>
 					<Button variant='contained' color='error' size='small'>
@@ -502,6 +477,7 @@ const EditProductForm = ({ product }: { product: Product | null }) => {
 							<SelectColor
 								key={index}
 								item={item}
+								imagePath={getColorImage(item.color)}
 								disabled={isLoading || !edittingProduct}
 								addImageToState={addImageToState}
 								removeImageFromState={removeImageFromState}
