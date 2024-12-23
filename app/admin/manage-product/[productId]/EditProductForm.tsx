@@ -7,15 +7,11 @@ import {
 	getStorage,
 	ref,
 	uploadBytesResumable,
-	getDownloadURL
+	getDownloadURL,
+	deleteObject
 } from 'firebase/storage';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
-// import { styled } from '@mui/material/styles';
-// import TableCell, { tableCellClasses } from '@mui/material/TableCell';
-// import TableRow from '@mui/material/TableRow';
-// import { purple } from '@mui/material/colors';
-// import MuiTextField from '@mui/material/TextField';
 
 import Heading from '@/app/components/Heading';
 import Input from '@/app/components/inputs/Input';
@@ -60,6 +56,8 @@ export type UploadedImageType = {
 
 const EditProductForm = ({ product }: { product: Product | null }) => {
 	const router = useRouter();
+	const storage = getStorage(firebaseApp);
+
 	const [isLoading, setIsLoading] = useState(false);
 	const [images, setImages] = useState<ImageType[] | null>(
 		product?.images?.map((img) => ({
@@ -141,10 +139,16 @@ const EditProductForm = ({ product }: { product: Product | null }) => {
 			);
 		}
 
+		// image contains old images and new images for the same color
+		// so we need to filter out the old images and delete them from firebase storage
+		const newImages = data.images.filter((item: ImageType) => {
+			return item.image && item.image.name !== '';
+		});
+
 		const handleImageUploads = async () => {
 			toast('Uploading image..., please wait...');
 			try {
-				for (const item of data.images) {
+				for (const item of newImages) {
 					if (item.image) {
 						const fileName = new Date().getTime() + '-' + item.image.name;
 						const storage = getStorage(firebaseApp);
@@ -196,9 +200,26 @@ const EditProductForm = ({ product }: { product: Product | null }) => {
 				return toast.error('Error uploading image, please try again');
 			}
 		};
-
 		await handleImageUploads();
-		const productData = { ...data, images: product?.images, id: product?.id };
+
+		// delete old images from firebase storage
+		const handleImageDelete = async () => {
+			try {
+				for (const item of productImages) {
+					if (item.image) {
+						const imageRef = ref(storage, item.image);
+						await deleteObject(imageRef);
+						console.log('Image deleted from firebase storage');
+					}
+				}
+			} catch (err) {
+				console.error(err);
+				toast.error('Failed to delete product images from firebase storage');
+			}
+		};
+		await handleImageDelete();
+
+		const productData = { ...data, images: uploadedImages, id: product?.id };
 		axios
 			.put('/api/products', productData)
 			.then(() => {
@@ -330,11 +351,9 @@ const EditProductForm = ({ product }: { product: Product | null }) => {
 		return null;
 	};
 
-	const handleEditStatus = () => {
-		setEdittingProduct(!edittingProduct);
-		if (!edittingProduct) {
-			window.location.reload();
-		}
+	const refreshPage = () => {
+		// when user cancel product editting before submit, need to reload page to change back to original state
+		window.location.reload();
 	};
 
 	return (
@@ -347,13 +366,23 @@ const EditProductForm = ({ product }: { product: Product | null }) => {
 					/>
 				</div>
 				<div className='flex flex-row gap-2'>
-					<Button
-						variant='contained'
-						color='warning'
-						size='small'
-						onClick={handleEditStatus}>
-						{edittingProduct ? ' Cancel' : 'Edit'}
-					</Button>
+					{edittingProduct ? (
+						<Button
+							variant='contained'
+							color='warning'
+							size='small'
+							onClick={refreshPage}>
+							Cancel
+						</Button>
+					) : (
+						<Button
+							variant='contained'
+							color='warning'
+							size='small'
+							onClick={() => setEdittingProduct(!edittingProduct)}>
+							Edit
+						</Button>
+					)}
 					<Button variant='contained' color='error' size='small'>
 						Delete
 					</Button>
@@ -492,7 +521,7 @@ const EditProductForm = ({ product }: { product: Product | null }) => {
 				variant='contained'
 				onClick={handleSubmit(onSubmit)}
 				sx={{ backgroundColor: '#8B5CF6' }}>
-				{isLoading ? 'Loading...' : 'Add Product'}
+				{isLoading ? 'Loading...' : 'Update Product'}
 			</Button>
 		</>
 	);

@@ -31,6 +31,8 @@ const SelectColor: React.FC<SelectColorProps> = ({
 	const [edittingImage, setEdittingImage] = useState(false);
 	const [showSelectImage, setShowSelectImage] = useState(false);
 
+	// console.log('imagePath', imagePath, item);
+
 	useEffect(() => {
 		if (isProductCreated) {
 			setIsSelected(false);
@@ -96,6 +98,9 @@ const SelectColor: React.FC<SelectColorProps> = ({
 										alt={item.color}
 										width={80}
 										height={80}
+										style={{ width: 'auto', height: 'auto' }}
+										placeholder='blur'
+										blurDataURL={imagePath}
 									/>
 								</div>
 							)}
