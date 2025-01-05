@@ -1,13 +1,12 @@
 'use client';
 
-import React, { useEffect, useCallback, useState, use } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Rating } from '@mui/material';
 import SetColor from '@/app/components/products/SetColor';
 import SetQuantity from '@/app/components/products/SetQuantity';
 import { Button } from '@mui/material';
 import ProductImage from '@/app/components/products/ProductImage';
 import { useCart } from '@/hooks/useCart';
-import { MdCheckCircle } from 'react-icons/md';
 import { useRouter } from 'next/navigation';
 import { Product } from '@prisma/client';
 
@@ -165,6 +164,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
 				<div className='max-w-[300px]'>
 					<Button
 						variant='contained'
+						disabled={product.inStock ? false : true}
 						sx={{ backgroundColor: '#8B5CF6' }}
 						onClick={() => handleAddProductToCart(cartProduct, currentPrice)}>
 						Add To Cart

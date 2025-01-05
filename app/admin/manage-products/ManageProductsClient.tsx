@@ -73,12 +73,6 @@ const ManageProductsClient: React.FC<ManageProductsClientProps> = ({
 		});
 	}
 
-	const items = [
-		{ text: 'Inbox', icon: <IoIosArrowDown /> },
-		{ text: 'Drafts', icon: <IoIosArrowUp /> }
-		// Add more items as needed
-	];
-
 	const handleRowClick = (rowId: number) => {
 		setExpandedRowId(expandedRowId === rowId ? null : rowId);
 	};
