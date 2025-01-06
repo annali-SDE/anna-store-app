@@ -10,7 +10,7 @@ const strip = new Strip(process.env.STRIPE_SECRET_KEY as string, {
 
 const calculateOrderAmount = (items: CartProductType[]) => {
 	const totalPrice = items.reduce((acc, item) => {
-		return acc + item.price * item.quantity;
+		return acc + item.price.price * item.quantity;
 	}, 0);
 	return totalPrice;
 };

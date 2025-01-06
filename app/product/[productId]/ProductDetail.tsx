@@ -7,11 +7,12 @@ import SetQuantity from '@/app/components/products/SetQuantity';
 import { Button } from '@mui/material';
 import ProductImage from '@/app/components/products/ProductImage';
 import { useCart } from '@/hooks/useCart';
-import { useRouter } from 'next/navigation';
-import { Product } from '@prisma/client';
+import { Product, Review } from '@prisma/client';
 
 interface ProductDetailProps {
-	product: Product;
+	product: Product & {
+		reviews: Review[];
+	};
 }
 
 export type CartProductType = {
@@ -44,8 +45,7 @@ const Horizontal = () => {
 };
 
 const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
-	const { handleAddProductToCart, cartProducts } = useCart();
-	const [isProductInCart, setIsProductInCart] = useState(false);
+	const { handleAddProductToCart } = useCart();
 	const [currentPrice, setCurrentPrice] = useState<PriceType>(
 		product.prices[0]
 	);
@@ -62,8 +62,6 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
 		length: '',
 		shape: ''
 	});
-
-	const router = useRouter();
 
 	const productReating =
 		product.reviews.reduce(

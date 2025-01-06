@@ -24,10 +24,10 @@ const OrderItem: React.FC<OrderItemProps> = ({ item }) => {
 					<div>{item.selectedImg.color}</div>
 				</div>
 			</div>
-			<div className='justify-self-center'>{formatPrice(item.price)}</div>
+			<div className='justify-self-center'>{formatPrice(item.price.price)}</div>
 			<div className='justify-self-center'>{item.quantity}</div>
 			<div className='justify-self-end font-semibold'>
-				{(item.price * item.quantity).toFixed(2)}
+				{(item.price.price * item.quantity).toFixed(2)}
 			</div>
 		</div>
 	);

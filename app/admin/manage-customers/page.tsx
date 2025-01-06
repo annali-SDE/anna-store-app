@@ -1,6 +1,5 @@
 export const dynamic = 'force-dynamic';
 import Container from '@/app/components/Container';
-import getProducts from '@/actions/getProducts';
 import getUsers from '@/actions/getUsers';
 import ManageCustomers from './ManageCustomers';
 

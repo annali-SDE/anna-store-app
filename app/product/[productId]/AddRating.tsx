@@ -13,10 +13,9 @@ import toast from 'react-hot-toast';
 import axios from 'axios';
 
 interface AddRatingProps {
-	product: Product;
-	// product: Product & {
-	// 	reviews: Review[];
-	// };
+	product: Product & {
+		reviews: Review[];
+	};
 	user:
 		| (SafeUser & {
 				orders: Order[];
