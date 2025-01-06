@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { MdArrowBack } from 'react-icons/md';
 import Heading from '../components/Heading';
 import { Button } from '@mui/material';
-// import Button from '../components/Button';
 import CartItem from './CartItem';
 import { formatPrice } from '../utils/formatPrice';
 import { SafeUser } from '@/types';
@@ -17,7 +16,6 @@ interface CartClientProps {
 
 const CartClient: React.FC<CartClientProps> = ({ currentUser }) => {
 	const { cartProducts, handleClearCart, cartTotalAmount } = useCart();
-	console.log('cartProducts', cartProducts);
 	const router = useRouter();
 
 	if (!cartProducts || cartProducts.length === 0) {

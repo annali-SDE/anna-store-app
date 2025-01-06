@@ -242,7 +242,7 @@ const ManageProductsClient: React.FC<ManageProductsClientProps> = ({
 																				<ListItemText
 																					primary={`${formatPrice(
 																						item.price
-																					)} / ${item.unit}`}
+																					)} / ${item.quantity}${item.unit}`}
 																				/>
 																			</ListItem>
 																		</Fragment>

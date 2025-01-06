@@ -46,7 +46,10 @@ const CartItem: React.FC<CartItemProps> = ({ item, index }) => {
 				</div>
 			</div>
 			<div className='justify-self-center'>{formatPrice(item.price.price)}</div>
-			<div className='justify-self-center'>{item.price.unit}</div>
+			<div className='justify-self-center'>
+				{item.price.quantity}
+				{item.price.unit}
+			</div>
 			<div className='justify-self-center'>
 				<SetQuantity
 					cartProduct={item}
