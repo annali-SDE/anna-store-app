@@ -1,13 +1,13 @@
 'use client';
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Rating } from '@mui/material';
 import SetColor from '@/app/components/products/SetColor';
-import SetQuantity from '@/app/components/products/SetQuantity';
 import { Button } from '@mui/material';
 import ProductImage from '@/app/components/products/ProductImage';
-import { useCart } from '@/hooks/useCart';
 import { Product, Review } from '@prisma/client';
+import { useCart } from '@/hooks/useCart';
+import { MinusCircle, PlusCircle } from 'lucide-react';
 
 interface ProductDetailProps {
 	product: Product & {
@@ -18,14 +18,14 @@ interface ProductDetailProps {
 export type CartProductType = {
 	id: string;
 	name: string;
-	description: string | null;
+	description?: string | null;
 	category: string;
 	selectedImg: SelectedImgType;
 	quantity: number;
 	price: PriceType;
 	size: string;
-	length: string;
-	shape: string;
+	length?: string;
+	shape?: string;
 };
 
 export type PriceType = {
@@ -45,7 +45,8 @@ const Horizontal = () => {
 };
 
 const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
-	const { handleAddProductToCart } = useCart();
+	const cart = useCart();
+	const [quantity, setQuantity] = useState<number>(1);
 	const [currentPrice, setCurrentPrice] = useState<PriceType>(
 		product.prices[0]
 	);
@@ -63,6 +64,12 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
 		shape: ''
 	});
 
+	useEffect(() => {
+		setCartProduct((prev) => {
+			return { ...prev, price: currentPrice, quantity: quantity };
+		});
+	}, [currentPrice, quantity]);
+
 	const productReating =
 		product.reviews.reduce(
 			(acc: number, review: any) => acc + review.rating,
@@ -75,21 +82,13 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
 		});
 	}, []);
 
-	const handleQuantityIncrease = useCallback(() => {
+	const addProductToCart = () => {
 		setCartProduct((prev) => {
-			return { ...prev, quantity: prev.quantity + 1 };
+			return { ...prev, quantity: quantity };
 		});
-	}, []);
 
-	const handleQuantityDecrease = useCallback(() => {
-		setCartProduct((prev) => {
-			return { ...prev, quantity: prev.quantity - 1 };
-		});
-	}, []);
-
-	const handlePriceSelect = useCallback((price: PriceType) => {
-		setCurrentPrice(price);
-	}, []);
+		cart.addItem(cartProduct);
+	};
 
 	return (
 		<div className='grid grid-cols-1 md:grid-cols-2 gap-12'>
@@ -143,7 +142,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
 												padding: '3px'
 											}}
 											onClick={() =>
-												handlePriceSelect(price)
+												setCurrentPrice(price)
 											}>{`$ ${price.price} / ${price.unit}`}</Button>
 									))}
 							</div>
@@ -151,12 +150,19 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
 					</div>
 				</div>
 				<Horizontal />
-				<div>
-					<SetQuantity
-						cartProduct={cartProduct}
-						handleQuantityIncrease={handleQuantityIncrease}
-						handleQuantityDecrease={handleQuantityDecrease}
-					/>
+				<div className='flex gap-2 items-center'>
+					<p className='font-semibold'>Quantity:</p>
+					<div className='flex gap-4 items-center'>
+						<MinusCircle
+							className='hover:text-red-1 cursor-pointer'
+							onClick={() => quantity > 1 && setQuantity(quantity - 1)}
+						/>
+						<p className='text-body-bold'>{quantity}</p>
+						<PlusCircle
+							className='hover:text-red-1 cursor-pointer'
+							onClick={() => setQuantity(quantity + 1)}
+						/>
+					</div>
 				</div>
 				<Horizontal />
 				<div className='max-w-[300px]'>
@@ -164,7 +170,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
 						variant='contained'
 						disabled={product.inStock ? false : true}
 						sx={{ backgroundColor: '#8B5CF6' }}
-						onClick={() => handleAddProductToCart(cartProduct, currentPrice)}>
+						onClick={() => addProductToCart()}>
 						Add To Cart
 					</Button>
 				</div>

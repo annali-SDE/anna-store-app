@@ -1,6 +1,5 @@
 'use client';
 
-import { useCart } from '@/hooks/useCart';
 import Link from 'next/link';
 import { MdArrowBack } from 'react-icons/md';
 import Heading from '../components/Heading';
@@ -9,16 +8,21 @@ import CartItem from './CartItem';
 import { formatPrice } from '../utils/formatPrice';
 import { SafeUser } from '@/types';
 import { useRouter } from 'next/navigation';
+import { useCart } from '@/hooks/useCart';
 
 interface CartClientProps {
 	currentUser: SafeUser | null;
 }
 
 const CartClient: React.FC<CartClientProps> = ({ currentUser }) => {
-	const { cartProducts, handleClearCart, cartTotalAmount } = useCart();
 	const router = useRouter();
+	const cart = useCart();
 
-	if (!cartProducts || cartProducts.length === 0) {
+	if (
+		!cart.cartItems ||
+		cart.cartItems.length === 0 ||
+		cart.cartTotalQty === 0
+	) {
 		return (
 			<div className='flex flex-col items-center'>
 				<div className='text-2xl'>Your Cart is empty</div>
@@ -44,15 +48,15 @@ const CartClient: React.FC<CartClientProps> = ({ currentUser }) => {
 				<div className='justify-self-end font-semibold'>Total</div>
 			</div>
 			<div>
-				{cartProducts.map((item, index) => {
-					return <CartItem key={index} item={item} index={index} />;
+				{cart.cartItems.map((item, index) => {
+					return <CartItem key={index} cartProduct={item} />;
 				})}
 			</div>
 			<div className='border-t-[1.5px] border-slate-200 py-4 flex justify-between gap-4'>
 				<div>
 					<Button
 						variant='contained'
-						onClick={() => handleClearCart()}
+						onClick={() => cart.clearCart()}
 						size='small'
 						color='error'>
 						Clear Cart
@@ -62,7 +66,7 @@ const CartClient: React.FC<CartClientProps> = ({ currentUser }) => {
 					<div>
 						<div className='flex justify-between w-full text-base font-semibold'>
 							<span>Subtotal</span>
-							<span>{formatPrice(cartTotalAmount)}</span>
+							<span>{formatPrice(cart.cartTotalAmount)}</span>
 						</div>
 
 						<p className='text-slate-500'>
